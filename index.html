@@ -284,7 +284,22 @@ fieldset:disabled .choice { opacity: .5; cursor: default; }
   border-radius: 50%;
 }
 .lifeline { margin: 10px 0 0; font-size: 13px; color: var(--ink-soft); }
-.date { display: flex; align-items: center; gap: 8px; }
+.date { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.date-nav { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+@media (max-width: 420px) { .date-nav { font-size: 14px; gap: 5px; } }
+.pick {
+  min-height: 32px;
+  padding: 2px 8px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--sheet);
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+}
+.pick:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.hist-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.hist-meta { font-size: 13.5px; color: var(--ink-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .nav {
   width: 32px; height: 32px;
   border: 1px solid var(--rule);
@@ -453,9 +468,12 @@ fieldset:disabled textarea { opacity: .5; }
     <div>
       <h1>하루 채점표</h1>
       <div class="date">
-        <button type="button" class="nav" id="btn-prev" aria-label="전날로">&#8249;</button>
-        <span id="date-text"></span>
-        <button type="button" class="nav" id="btn-next" aria-label="다음 날로">&#8250;</button>
+        <span class="date-nav">
+          <button type="button" class="nav" id="btn-prev" aria-label="전날로">&#8249;</button>
+          <span id="date-text"></span>
+          <button type="button" class="nav" id="btn-next" aria-label="다음 날로">&#8250;</button>
+        </span>
+        <input type="date" class="pick" id="date-pick" aria-label="날짜를 골라 이동">
       </div>
       <button type="button" class="text-btn" id="btn-today" hidden>오늘로 돌아가기</button>
     </div>
@@ -537,10 +555,10 @@ fieldset:disabled textarea { opacity: .5; }
           <button type="button" class="step" id="hp-field" data-step="0.5" aria-label="인터뷰·현장조사 30분 늘리기">+</button>
         </div>
         <div class="hour" data-kind="study">
-          <span class="hour-name" id="hn-study">수업·공부</span>
-          <button type="button" class="step" id="hm-study" data-step="-0.5" aria-label="수업·공부 30분 줄이기">&minus;</button>
+          <span class="hour-name" id="hn-study">티칭·멘토링</span>
+          <button type="button" class="step" id="hm-study" data-step="-0.5" aria-label="티칭·멘토링 30분 줄이기">&minus;</button>
           <output class="hour-val" id="hv-study" aria-labelledby="hn-study">0</output>
-          <button type="button" class="step" id="hp-study" data-step="0.5" aria-label="수업·공부 30분 늘리기">+</button>
+          <button type="button" class="step" id="hp-study" data-step="0.5" aria-label="티칭·멘토링 30분 늘리기">+</button>
         </div>
         <div class="hour" data-kind="admin">
           <span class="hour-name" id="hn-admin">행정·이메일</span>
@@ -568,6 +586,27 @@ fieldset:disabled textarea { opacity: .5; }
           <button type="button" class="step" id="hm-listen" data-step="-0.5" aria-label="영어 듣기 30분 줄이기">&minus;</button>
           <output class="hour-val" id="hv-listen" aria-labelledby="hn-listen">0</output>
           <button type="button" class="step" id="hp-listen" data-step="0.5" aria-label="영어 듣기 30분 늘리기">+</button>
+        </div>
+      </div>
+      <span class="caption caption-gap" id="cap-arabic">아랍어</span>
+      <div class="hours" role="group" aria-labelledby="cap-arabic">
+        <div class="hour" data-kind="ar_speak">
+          <span class="hour-name" id="hn-ar_speak">말하기</span>
+          <button type="button" class="step" id="hm-ar_speak" data-step="-0.5" aria-label="아랍어 말하기 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-ar_speak" aria-labelledby="hn-ar_speak">0</output>
+          <button type="button" class="step" id="hp-ar_speak" data-step="0.5" aria-label="아랍어 말하기 30분 늘리기">+</button>
+        </div>
+        <div class="hour" data-kind="ar_listen">
+          <span class="hour-name" id="hn-ar_listen">듣기</span>
+          <button type="button" class="step" id="hm-ar_listen" data-step="-0.5" aria-label="아랍어 듣기 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-ar_listen" aria-labelledby="hn-ar_listen">0</output>
+          <button type="button" class="step" id="hp-ar_listen" data-step="0.5" aria-label="아랍어 듣기 30분 늘리기">+</button>
+        </div>
+        <div class="hour" data-kind="ar_phrase">
+          <span class="hour-name" id="hn-ar_phrase">표현 외우기</span>
+          <button type="button" class="step" id="hm-ar_phrase" data-step="-0.5" aria-label="아랍어 표현 외우기 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-ar_phrase" aria-labelledby="hn-ar_phrase">0</output>
+          <button type="button" class="step" id="hp-ar_phrase" data-step="0.5" aria-label="아랍어 표현 외우기 30분 늘리기">+</button>
         </div>
       </div>
       <p class="hint" id="hours-hint"></p>
@@ -675,7 +714,7 @@ fieldset:disabled textarea { opacity: .5; }
       <p class="lifeline" id="lifeline"></p>
     </div>
     <details class="notes" id="notes">
-      <summary>적어 둔 글 모아 보기</summary>
+      <summary>날짜별 기록</summary>
       <div id="notes-list"></div>
     </details>
     <div class="foot">
@@ -706,8 +745,8 @@ fieldset:disabled textarea { opacity: .5; }
   var CHOICE = ["start", "task", "output", "distract"];
   var POINTS = { start: [0, 5, 10], task: [0, 10, 20], output: [0, 5, 10], distract: [0, 5, 10] };
   /* Hours are logged by kind and the work hours are scored against the day's target.
-     Admin and email hours count only on an admin day. English practice counts like any other kind. */
-  var TIME = ["read", "write", "data", "idea", "field", "study", "admin", "speak", "pron", "listen"];
+     Admin and email hours count only on an admin day. English and Arabic practice count like any other kind. */
+  var TIME = ["read", "write", "data", "idea", "field", "study", "admin", "speak", "pron", "listen", "ar_speak", "ar_listen", "ar_phrase"];
   var ENGLISH_TIME = ["speak", "pron", "listen"];
   var TIME_PTS = 20;
   /* Life block: 5 points for each of exercise, chores, something learned, and rest
@@ -807,8 +846,9 @@ fieldset:disabled textarea { opacity: .5; }
   var TYPE_NAMES = { focus: "집중일", normal: "보통날", light: "가벼운 날", admin: "행정일", rest: "쉬는 날" };
   var TIME_NAMES = {
     read: "리딩", write: "라이팅", data: "데이터 정리", idea: "브레인스토밍",
-    field: "인터뷰·현장조사", study: "수업·공부", admin: "행정·이메일",
-    speak: "영어 말하기", pron: "영어 발음", listen: "영어 듣기"
+    field: "인터뷰·현장조사", study: "티칭·멘토링", admin: "행정·이메일",
+    speak: "영어 말하기", pron: "영어 발음", listen: "영어 듣기",
+    ar_speak: "아랍어 말하기", ar_listen: "아랍어 듣기", ar_phrase: "아랍어 표현 외우기"
   };
   var LISTS = { exercise: S.EXERCISE, chores: S.CHORES };
 
@@ -907,6 +947,8 @@ fieldset:disabled textarea { opacity: .5; }
     $("date-text").textContent = fmtShort.format(parseDate(d.date)) + (d.date === today ? " · 오늘" : "");
     $("btn-today").hidden = d.date === today;
     $("btn-next").disabled = d.date >= today;
+    $("date-pick").max = today;
+    $("date-pick").value = d.date;
     var buttons = document.querySelectorAll("#all .choice"), i, b, g, key, mode, on;
     for (i = 0; i < buttons.length; i++) {
       b = buttons[i]; g = b.parentNode; key = g.dataset.key; mode = g.dataset.mode;
@@ -1003,21 +1045,22 @@ fieldset:disabled textarea { opacity: .5; }
     $("lifeline").textContent = "7일 생활: 운동 " + lifeDays.exercise + "일 · 집안일 " + lifeDays.chores + "일 · 새롭게 배운 것 " + lifeDays.learned + "일";
     renderNotes();
   }
-  /* every day that has something written down, newest first */
+  /* every recorded day, newest first: its type and score, and anything written down */
   function renderNotes() {
     var list = $("notes-list"), dates = [];
     list.textContent = "";
-    state.days.forEach(function (v, k) {
-      if (v && (S.text(v.learned).trim() || S.text(v.plan).trim())) dates.push(k);
-    });
+    state.days.forEach(function (v, k) { if (v) dates.push(k); });
     dates.sort().reverse();
-    if (!dates.length) { list.appendChild(el("p", "hint", "아직 적어 둔 글이 없습니다.")); return; }
+    if (!dates.length) { list.appendChild(el("p", "hint", "아직 기록한 날이 없습니다.")); return; }
     dates.forEach(function (date) {
-      var v = state.days.get(date), box = el("div", "note-day");
+      var v = state.days.get(date), box = el("div", "note-day"), head = el("div", "hist-head");
+      var r = S.scoreDay(draftFor(date));
       var go = el("button", "note-date", fmtShort.format(parseDate(date)));
       go.type = "button";
       go.dataset.date = date;
-      box.appendChild(go);
+      head.appendChild(go);
+      head.appendChild(el("span", "hist-meta", TYPE_NAMES[r.type] + (r.score != null ? " · " + r.score + "점" : "")));
+      box.appendChild(head);
       [["새롭게 배운 것", S.text(v.learned).trim()], ["다음 날의 우선순위", S.text(v.plan).trim()]].forEach(function (pair) {
         if (!pair[1]) return;
         box.appendChild(el("span", "note-kind", pair[0]));
@@ -1231,6 +1274,9 @@ fieldset:disabled textarea { opacity: .5; }
   $("btn-today").addEventListener("click", function () { goTo(todayStr()); });
   $("btn-prev").addEventListener("click", function () { if (state.ready) goTo(addDays(state.date, -1)); });
   $("btn-next").addEventListener("click", function () { if (state.ready) goTo(addDays(state.date, 1)); });
+  $("date-pick").addEventListener("change", function (e) {
+    if (state.ready && e.target.value) goTo(e.target.value); else e.target.value = state.date;
+  });
   $("notes-list").addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest(".note-date");
     if (!b || !state.ready) return;

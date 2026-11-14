@@ -1,0 +1,1312 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>하루 채점표</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="채점표">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#fbfcfd" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#151d28" media="(prefers-color-scheme: dark)">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&amp;family=Hahmlet:wght@700&amp;family=IBM+Plex+Sans+KR:wght@400;500;600&amp;family=Nanum+Pen+Script&amp;display=swap">
+<style>
+:root {
+  /* layout: one small exam paper in a 560px column. Title on the left, red-pen score box on the right,
+     the day type, then seven questions with their point values (one-tap answers, hours by kind of work, a life block, tomorrow's priorities), then seven bars for the past week. */
+  --desk: #e7ebf1;
+  --sheet: #fbfcfd;
+  --ink: #18263b;
+  --ink-soft: #53627a;
+  --ink-faint: #8693a7;
+  --rule: #d2dae4;
+  --fill: #edf1f6;
+  --pen: #d42a3c;
+  --mark: #2c5fb8;
+  --mark-track: #d9e3f4;
+  --focus: #1f6feb;
+  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR", system-ui, sans-serif;
+  --font-display: "Hahmlet", "Nanum Myeongjo", "AppleMyungjo", "Noto Serif KR", "Noto Serif CJK KR", "Batang", serif;
+  --font-pen: "Caveat", "Nanum Pen Script", "Bradley Hand", cursive;
+  --font-pen-ko: "Nanum Pen Script", "Caveat", "Bradley Hand", cursive;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --desk: #0d131b;
+    --sheet: #151d28;
+    --ink: #e4eaf2;
+    --ink-soft: #a5b1c3;
+    --ink-faint: #76849a;
+    --rule: #2a3646;
+    --fill: #1e2936;
+    --pen: #ff7b7b;
+    --mark: #5b8fe6;
+    --mark-track: #22324d;
+    --focus: #6aa6ff;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --desk: #0d131b;
+  --sheet: #151d28;
+  --ink: #e4eaf2;
+  --ink-soft: #a5b1c3;
+  --ink-faint: #76849a;
+  --rule: #2a3646;
+  --fill: #1e2936;
+  --pen: #ff7b7b;
+  --mark: #5b8fe6;
+    --mark-track: #22324d;
+  --focus: #6aa6ff;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--desk);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  word-break: keep-all;
+}
+.sheet {
+  max-width: 560px;
+  margin: 0 auto;
+  background: var(--sheet);
+  padding: 24px clamp(16px, 5vw, 36px) 28px;
+}
+@media (min-width: 620px) {
+  .sheet { margin: 28px auto; border: 1px solid var(--rule); }
+}
+fieldset.plain { border: 0; margin: 0; padding: 0; min-width: 0; }
+h1, h2 { text-wrap: balance; }
+button { font: inherit; color: inherit; }
+button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* ---------- header ---------- */
+.head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 16px;
+  border-top: 3px solid var(--ink);
+  padding: 18px 0 20px;
+}
+h1 {
+  margin: 0 0 6px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: clamp(28px, 7vw, 36px);
+  line-height: 1.15;
+  letter-spacing: -.01em;
+}
+.date { margin: 0; font-size: 15px; color: var(--ink-soft); }
+.text-btn {
+  min-height: 32px;
+  margin-top: 2px;
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  font-size: 13.5px;
+  color: var(--ink-soft);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.scorebox {
+  position: relative;
+  flex: none;
+  width: 140px;
+  min-height: 108px;
+  border: 1px solid var(--ink);
+  padding: 22px 8px 8px;
+  text-align: center;
+}
+.scorebox-label {
+  position: absolute;
+  top: 0; left: 0;
+  padding: 1px 9px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: .12em;
+  background: var(--fill);
+  border-right: 1px solid var(--ink);
+  border-bottom: 1px solid var(--ink);
+}
+.score {
+  display: inline-block;
+  min-width: 72px;
+  padding: 0 8px 1px;
+  font-family: var(--font-pen);
+  font-weight: 700;
+  font-size: 62px;
+  line-height: .92;
+  color: var(--pen);
+  border-bottom: 4px double var(--pen);
+  transform: rotate(-4deg);
+}
+.remark.is-count {
+  font-family: var(--font-body);
+  font-size: 12.5px;
+  line-height: 26px;
+  color: var(--ink-soft);
+  transform: none;
+}
+.score.is-empty { color: var(--ink-faint); border-bottom-color: transparent; }
+.remark {
+  display: block;
+  margin-top: 8px;
+  min-height: 26px;
+  font-family: var(--font-pen-ko);
+  font-size: 25px;
+  line-height: 1.05;
+  color: var(--pen);
+  transform: rotate(-3deg);
+}
+
+/* ---------- questions ---------- */
+.q { padding: 13px 0 15px; border-top: 1px solid var(--rule); }
+.q-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 9px; }
+.q h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.35;
+}
+.q-no { margin-right: 5px; }
+.q-pts {
+  margin-left: 6px;
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  font-weight: 500;
+  color: var(--ink-soft);
+  white-space: nowrap;
+}
+.earned {
+  flex: none;
+  min-width: 44px;
+  text-align: right;
+  font-family: var(--font-pen);
+  font-weight: 700;
+  font-size: 28px;
+  line-height: 1;
+  color: var(--pen);
+  white-space: nowrap;
+  transform: rotate(-4deg);
+}
+.seg { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; }
+.choice {
+  min-height: 44px;
+  padding: 6px 4px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--sheet);
+  font-size: 15.5px;
+  cursor: pointer;
+}
+.choice[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--sheet);
+  font-weight: 500;
+}
+fieldset:disabled .choice { opacity: .5; cursor: default; }
+[hidden] { display: none !important; }
+.backup { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.backup summary { min-height: 32px; font-size: 14.5px; font-weight: 600; cursor: pointer; }
+.backup summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.backup-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
+.box-btn {
+  min-height: 42px;
+  padding: 6px 14px;
+  border: 1px solid var(--ink);
+  border-radius: 6px;
+  background: var(--sheet);
+  font-size: 14.5px;
+  cursor: pointer;
+}
+.hours { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+@media (max-width: 500px) { .hours { grid-template-columns: minmax(0, 1fr); } }
+.hour {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 40px 40px 40px;
+  align-items: center;
+  gap: 2px;
+  min-height: 48px;
+  padding: 3px 3px 3px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+}
+.hour.is-on { border-color: var(--ink); }
+.hour-name { font-size: 15.5px; }
+.hour-val { text-align: center; font-weight: 600; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
+.hour.is-on .hour-val { color: var(--ink); }
+.step {
+  width: 40px; height: 40px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--sheet);
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+}
+.step:disabled { opacity: .35; cursor: default; }
+.hint { margin: 8px 0 0; font-size: 13px; color: var(--ink-soft); }
+.caption { display: block; margin-bottom: 6px; font-size: 12.5px; font-weight: 600; letter-spacing: .04em; color: var(--ink-soft); }
+.caption-gap { margin-top: 12px; }
+.daytype { padding: 0 0 14px; }
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { min-height: 40px; padding: 6px 13px; font-size: 14.5px; }
+.life { display: grid; grid-template-columns: 76px minmax(0, 1fr); align-items: center; gap: 10px; }
+.life-name { font-size: 14.5px; font-weight: 500; }
+@media (max-width: 420px) {
+  .life { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .life-name:not(:first-child) { margin-top: 6px; }
+}
+.col.is-rest::after {
+  content: "";
+  position: absolute;
+  left: 50%; bottom: 5px;
+  width: 7px; height: 7px;
+  margin-left: -3.5px;
+  border: 1.5px solid var(--ink-faint);
+  border-radius: 50%;
+}
+.lifeline { margin: 10px 0 0; font-size: 13px; color: var(--ink-soft); }
+.date { display: flex; align-items: center; gap: 8px; }
+.nav {
+  width: 32px; height: 32px;
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  background: var(--sheet);
+  color: var(--ink);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+}
+.nav:disabled { opacity: .35; cursor: default; }
+.notes { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--rule); }
+.notes summary { min-height: 32px; font-size: 14.5px; font-weight: 600; cursor: pointer; }
+.notes summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.note-day { padding: 10px 0 12px; border-top: 1px solid var(--rule); }
+.note-day:first-child { border-top: 0; }
+.note-date {
+  min-height: 30px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.note-kind { display: block; margin-top: 6px; font-size: 12px; font-weight: 600; letter-spacing: .04em; color: var(--ink-soft); }
+.note-line { margin: 1px 0 0; font-size: 14.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.mix { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--rule); }
+.mix .week-head { margin-bottom: 8px; }
+.mix-row { display: grid; grid-template-columns: 112px minmax(0, 1fr) 64px; align-items: center; gap: 10px; padding: 5px 0; }
+.mix-name { font-size: 14px; }
+.meter { height: 8px; border-radius: 4px; background: var(--mark-track); overflow: hidden; }
+.meter i { display: block; height: 100%; border-radius: 4px; background: var(--mark); }
+.mix-val { text-align: right; font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.note { margin: 0 0 16px; padding: 10px 14px; background: var(--fill); border-left: 3px solid var(--ink); }
+.note-label { display: block; font-size: 12.5px; font-weight: 600; letter-spacing: .04em; color: var(--ink-soft); }
+.note p { margin: 2px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 68px;
+  padding: 10px 12px;
+  font: inherit;
+  line-height: 1.5;
+  color: var(--ink);
+  background: var(--sheet);
+  border: 1px solid var(--rule);
+  border-radius: 6px;
+  resize: vertical;
+}
+textarea::placeholder { color: var(--ink-faint); opacity: 1; }
+textarea:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+fieldset:disabled textarea { opacity: .5; }
+
+/* ---------- past week ---------- */
+.week { padding-top: 20px; border-top: 4px double var(--ink); }
+.week-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+.week h2 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 18px; }
+.avg { margin: 0; font-size: 14.5px; color: var(--ink-soft); }
+.avg b { font-size: 18px; font-weight: 600; color: var(--ink); }
+
+.chart { padding-left: 30px; }
+.tipzone { position: relative; height: 26px; }
+.tip {
+  position: absolute;
+  bottom: 4px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: var(--ink);
+  color: var(--sheet);
+  font-size: 12.5px;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+.tip b { margin-right: 6px; font-weight: 600; }
+.plot { position: relative; height: 118px; }
+.grid span { position: absolute; left: 0; right: 0; height: 1px; background: var(--rule); }
+.grid span:last-child { background: var(--ink-faint); }
+.grid span::before {
+  content: attr(data-v);
+  position: absolute;
+  left: -30px; top: -8px;
+  width: 24px;
+  text-align: right;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--ink-faint);
+  font-variant-numeric: tabular-nums;
+}
+.cols { position: absolute; inset: 0; display: flex; }
+.col {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 4px 4px 0 0;
+  background: none;
+  cursor: pointer;
+}
+.col .bar {
+  position: absolute;
+  left: 50%; bottom: 0;
+  width: 24px;
+  border-radius: 4px 4px 0 0;
+  background: var(--mark);
+  transform: translateX(-50%);
+}
+.col:hover, .col:focus-visible { background: var(--fill); }
+.col:hover .bar, .col:focus-visible .bar { filter: brightness(1.18); }
+.col .cap {
+  position: absolute;
+  left: 50%;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1;
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  transform: translateX(-50%);
+}
+.xaxis { display: flex; margin-top: 6px; }
+.xaxis span {
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  font-size: 12.5px;
+  line-height: 18px;
+  color: var(--ink-faint);
+  white-space: nowrap;
+}
+.xaxis .is-sel {
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--pen);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 2px 12px;
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  color: var(--ink-soft);
+}
+.foot .is-warn { color: var(--ink); font-weight: 500; }
+
+@media (max-width: 400px) {
+  .scorebox { width: 120px; min-height: 100px; }
+  .score { font-size: 54px; min-width: 60px; }
+  .remark { font-size: 22px; }
+  .q h2 { font-size: 17px; }
+}
+</style>
+</head>
+<body>
+<main class="sheet" id="top">
+
+  <header class="head">
+    <div>
+      <h1>하루 채점표</h1>
+      <div class="date">
+        <button type="button" class="nav" id="btn-prev" aria-label="전날로">&#8249;</button>
+        <span id="date-text"></span>
+        <button type="button" class="nav" id="btn-next" aria-label="다음 날로">&#8250;</button>
+      </div>
+      <button type="button" class="text-btn" id="btn-today" hidden>오늘로 돌아가기</button>
+    </div>
+    <div class="scorebox" role="group" aria-label="이 날의 점수">
+      <span class="scorebox-label" aria-hidden="true">점수</span>
+      <span class="score is-empty" id="score">&ndash;</span>
+      <span class="remark" id="remark"></span>
+    </div>
+  </header>
+
+  <aside class="note" id="plan-note" hidden>
+    <span class="note-label" id="plan-note-label">어제 적어 둔 오늘 할 일</span>
+    <p id="plan-note-text"></p>
+  </aside>
+
+  <fieldset class="plain" id="all">
+    <div class="daytype">
+      <span class="caption" id="ln-type">하루 유형</span>
+        <div class="chips" role="group" aria-labelledby="ln-type" data-key="type" data-mode="type">
+          <button type="button" class="choice chip" id="type-focus" data-v="focus" aria-pressed="false">집중일</button>
+          <button type="button" class="choice chip" id="type-normal" data-v="normal" aria-pressed="false">보통날</button>
+          <button type="button" class="choice chip" id="type-light" data-v="light" aria-pressed="false">가벼운 날</button>
+          <button type="button" class="choice chip" id="type-admin" data-v="admin" aria-pressed="false">행정일</button>
+          <button type="button" class="choice chip" id="type-rest" data-v="rest" aria-pressed="false">쉬는 날</button>
+        </div>
+      <p class="hint" id="type-hint"></p>
+    </div>
+
+    <section class="q">
+      <div class="q-head">
+        <h2 id="q-start"><span class="q-no">1.</span>제때 시작했나요?<span class="q-pts">[10점]</span></h2>
+        <output class="earned" id="earned-start" aria-label="1번 획득 점수"></output>
+      </div>
+      <div class="seg" role="group" aria-labelledby="q-start" data-key="start" data-mode="one">
+        <button type="button" class="choice" id="start-0" data-v="0" aria-pressed="false">많이 늦게</button>
+        <button type="button" class="choice" id="start-1" data-v="1" aria-pressed="false">조금 늦게</button>
+        <button type="button" class="choice" id="start-2" data-v="2" aria-pressed="false">제때</button>
+      </div>
+    </section>
+
+    <section class="q">
+      <div class="q-head">
+        <h2 id="q-time"><span class="q-no">2.</span>어디에 몇 시간 썼나요?<span class="q-pts">[20점]</span></h2>
+        <output class="earned" id="earned-time" aria-label="2번 획득 점수"></output>
+      </div>
+      <span class="caption" id="cap-paper">논문·데이터</span>
+      <div class="hours" role="group" aria-labelledby="cap-paper">
+        <div class="hour" data-kind="read">
+          <span class="hour-name" id="hn-read">리딩</span>
+          <button type="button" class="step" id="hm-read" data-step="-0.5" aria-label="리딩 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-read" aria-labelledby="hn-read">0</output>
+          <button type="button" class="step" id="hp-read" data-step="0.5" aria-label="리딩 30분 늘리기">+</button>
+        </div>
+        <div class="hour" data-kind="write">
+          <span class="hour-name" id="hn-write">라이팅</span>
+          <button type="button" class="step" id="hm-write" data-step="-0.5" aria-label="라이팅 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-write" aria-labelledby="hn-write">0</output>
+          <button type="button" class="step" id="hp-write" data-step="0.5" aria-label="라이팅 30분 늘리기">+</button>
+        </div>
+        <div class="hour" data-kind="data">
+          <span class="hour-name" id="hn-data">데이터 정리</span>
+          <button type="button" class="step" id="hm-data" data-step="-0.5" aria-label="데이터 정리 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-data" aria-labelledby="hn-data">0</output>
+          <button type="button" class="step" id="hp-data" data-step="0.5" aria-label="데이터 정리 30분 늘리기">+</button>
+        </div>
+        <div class="hour" data-kind="idea">
+          <span class="hour-name" id="hn-idea">브레인스토밍</span>
+          <button type="button" class="step" id="hm-idea" data-step="-0.5" aria-label="브레인스토밍 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-idea" aria-labelledby="hn-idea">0</output>
+          <button type="button" class="step" id="hp-idea" data-step="0.5" aria-label="브레인스토밍 30분 늘리기">+</button>
+        </div>
+      </div>
+      <span class="caption caption-gap" id="cap-other">그 밖의 일</span>
+      <div class="hours" role="group" aria-labelledby="cap-other">
+        <div class="hour" data-kind="field">
+          <span class="hour-name" id="hn-field">인터뷰·현장조사</span>
+          <button type="button" class="step" id="hm-field" data-step="-0.5" aria-label="인터뷰·현장조사 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-field" aria-labelledby="hn-field">0</output>
+          <button type="button" class="step" id="hp-field" data-step="0.5" aria-label="인터뷰·현장조사 30분 늘리기">+</button>
+        </div>
+        <div class="hour" data-kind="study">
+          <span class="hour-name" id="hn-study">수업·공부</span>
+          <button type="button" class="step" id="hm-study" data-step="-0.5" aria-label="수업·공부 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-study" aria-labelledby="hn-study">0</output>
+          <button type="button" class="step" id="hp-study" data-step="0.5" aria-label="수업·공부 30분 늘리기">+</button>
+        </div>
+        <div class="hour" data-kind="admin">
+          <span class="hour-name" id="hn-admin">행정·이메일</span>
+          <button type="button" class="step" id="hm-admin" data-step="-0.5" aria-label="행정·이메일 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-admin" aria-labelledby="hn-admin">0</output>
+          <button type="button" class="step" id="hp-admin" data-step="0.5" aria-label="행정·이메일 30분 늘리기">+</button>
+        </div>
+      </div>
+      <span class="caption caption-gap" id="cap-english">영어</span>
+      <div class="hours" role="group" aria-labelledby="cap-english">
+        <div class="hour" data-kind="speak">
+          <span class="hour-name" id="hn-speak">말하기</span>
+          <button type="button" class="step" id="hm-speak" data-step="-0.5" aria-label="영어 말하기 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-speak" aria-labelledby="hn-speak">0</output>
+          <button type="button" class="step" id="hp-speak" data-step="0.5" aria-label="영어 말하기 30분 늘리기">+</button>
+        </div>
+        <div class="hour" data-kind="pron">
+          <span class="hour-name" id="hn-pron">발음</span>
+          <button type="button" class="step" id="hm-pron" data-step="-0.5" aria-label="영어 발음 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-pron" aria-labelledby="hn-pron">0</output>
+          <button type="button" class="step" id="hp-pron" data-step="0.5" aria-label="영어 발음 30분 늘리기">+</button>
+        </div>
+        <div class="hour" data-kind="listen">
+          <span class="hour-name" id="hn-listen">듣기</span>
+          <button type="button" class="step" id="hm-listen" data-step="-0.5" aria-label="영어 듣기 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-listen" aria-labelledby="hn-listen">0</output>
+          <button type="button" class="step" id="hp-listen" data-step="0.5" aria-label="영어 듣기 30분 늘리기">+</button>
+        </div>
+      </div>
+      <p class="hint" id="hours-hint"></p>
+    </section>
+
+    <section class="q">
+      <div class="q-head">
+        <h2 id="q-task"><span class="q-no">3.</span>가장 중요한 일을 끝냈나요?<span class="q-pts">[20점]</span></h2>
+        <output class="earned" id="earned-task" aria-label="3번 획득 점수"></output>
+      </div>
+      <div class="seg" role="group" aria-labelledby="q-task" data-key="task" data-mode="one">
+        <button type="button" class="choice" id="task-0" data-v="0" aria-pressed="false">못 했다</button>
+        <button type="button" class="choice" id="task-1" data-v="1" aria-pressed="false">절반쯤</button>
+        <button type="button" class="choice" id="task-2" data-v="2" aria-pressed="false">끝냈다</button>
+      </div>
+    </section>
+
+    <section class="q">
+      <div class="q-head">
+        <h2 id="q-output"><span class="q-no">4.</span>결과물이 남았나요?<span class="q-pts">[10점]</span></h2>
+        <output class="earned" id="earned-output" aria-label="4번 획득 점수"></output>
+      </div>
+      <div class="seg" role="group" aria-labelledby="q-output" data-key="output" data-mode="one">
+        <button type="button" class="choice" id="output-0" data-v="0" aria-pressed="false">없다</button>
+        <button type="button" class="choice" id="output-1" data-v="1" aria-pressed="false">조금</button>
+        <button type="button" class="choice" id="output-2" data-v="2" aria-pressed="false">확실히</button>
+      </div>
+    </section>
+
+    <section class="q">
+      <div class="q-head">
+        <h2 id="q-distract"><span class="q-no">5.</span>딴짓은 얼마나 했나요?<span class="q-pts">[10점]</span></h2>
+        <output class="earned" id="earned-distract" aria-label="5번 획득 점수"></output>
+      </div>
+      <div class="seg" role="group" aria-labelledby="q-distract" data-key="distract" data-mode="one">
+        <button type="button" class="choice" id="distract-0" data-v="0" aria-pressed="false">많이</button>
+        <button type="button" class="choice" id="distract-1" data-v="1" aria-pressed="false">조금</button>
+        <button type="button" class="choice" id="distract-2" data-v="2" aria-pressed="false">거의 안 함</button>
+      </div>
+    </section>
+
+    <section class="q">
+      <div class="q-head">
+        <h2 id="q-life"><span class="q-no">6.</span>생활<span class="q-pts">[하나에 5점]</span></h2>
+        <output class="earned" id="earned-life" aria-label="6번 획득 점수"></output>
+      </div>
+      <div class="life">
+        <span class="life-name" id="ln-exercise">운동</span>
+        <div class="chips" role="group" aria-labelledby="ln-exercise" data-key="exercise" data-mode="many">
+          <button type="button" class="choice chip" id="exercise-weight" data-v="weight" aria-pressed="false">웨이트</button>
+          <button type="button" class="choice chip" id="exercise-basketball" data-v="basketball" aria-pressed="false">농구</button>
+          <button type="button" class="choice chip" id="exercise-stretch" data-v="stretch" aria-pressed="false">스트레칭</button>
+        </div>
+        <span class="life-name" id="ln-chores">집안일</span>
+        <div class="chips" role="group" aria-labelledby="ln-chores" data-key="chores" data-mode="many">
+          <button type="button" class="choice chip" id="chores-clean" data-v="clean" aria-pressed="false">청소</button>
+          <button type="button" class="choice chip" id="chores-laundry" data-v="laundry" aria-pressed="false">빨래</button>
+          <button type="button" class="choice chip" id="chores-shop" data-v="shop" aria-pressed="false">장보기</button>
+          <button type="button" class="choice chip" id="chores-cook" data-v="cook" aria-pressed="false">요리</button>
+          <button type="button" class="choice chip" id="chores-other" data-v="other" aria-pressed="false">기타</button>
+        </div>
+        <span class="life-name" id="ln-rest">휴식</span>
+        <div class="chips" role="group" aria-labelledby="ln-rest" data-key="rest" data-mode="one">
+          <button type="button" class="choice chip" id="rest-0" data-v="0" aria-pressed="false">못 쉬었음</button>
+          <button type="button" class="choice chip" id="rest-1" data-v="1" aria-pressed="false">어느 정도</button>
+          <button type="button" class="choice chip" id="rest-2" data-v="2" aria-pressed="false">충분히 쉼</button>
+        </div>
+        <label class="life-name" for="learned-text">새롭게 배운 것</label>
+        <textarea id="learned-text" rows="2" maxlength="400" placeholder="공부나 연구 밖에서 새로 알게 된 것"></textarea>
+      </div>
+    </section>
+
+    <section class="q">
+      <div class="q-head">
+        <h2 id="q-plan"><span class="q-no">7.</span>내일의 우선순위<span class="q-pts">[10점]</span></h2>
+        <output class="earned" id="earned-plan" aria-label="7번 획득 점수"></output>
+      </div>
+      <textarea id="plan-text" rows="2" maxlength="300" aria-labelledby="q-plan" placeholder="내일 가장 먼저 할 일부터 적으세요"></textarea>
+    </section>
+  </fieldset>
+
+  <section class="week" aria-labelledby="week-t">
+    <div class="week-head">
+      <h2 id="week-t">최근 7일</h2>
+      <p class="avg" id="avg"></p>
+    </div>
+    <div class="chart">
+      <div class="tipzone"><div class="tip" id="tip" hidden></div></div>
+      <div class="plot">
+        <div class="grid" aria-hidden="true">
+          <span style="bottom:100px" data-v="100"></span>
+          <span style="bottom:50px" data-v="50"></span>
+          <span style="bottom:0" data-v="0"></span>
+        </div>
+        <div class="cols" id="cols" role="group" aria-label="날짜별 점수"></div>
+      </div>
+      <div class="xaxis" id="xaxis" aria-hidden="true"></div>
+    </div>
+    <div class="mix">
+      <div class="week-head">
+        <h2 id="mix-t">7일 시간</h2>
+        <p class="avg" id="mix-total"></p>
+      </div>
+      <div id="mix" role="group" aria-labelledby="mix-t"></div>
+      <p class="lifeline" id="lifeline"></p>
+    </div>
+    <details class="notes" id="notes">
+      <summary>적어 둔 글 모아 보기</summary>
+      <div id="notes-list"></div>
+    </details>
+    <div class="foot">
+      <span>막대를 누르면 그날 점수를 고칠 수 있습니다.</span>
+      <span id="sync" role="status"></span>
+      <button type="button" class="text-btn" id="btn-retry" hidden>다시 저장</button>
+    </div>
+    <details class="backup">
+      <summary>백업</summary>
+      <p class="hint">기록은 이 기기에만 저장됩니다. 가끔 전체를 복사해 메모 앱 같은 곳에 붙여 두세요. 기기를 바꾸면 그 글을 아래 칸에 붙여 넣고 불러오면 됩니다.</p>
+      <div class="backup-actions">
+        <button type="button" class="box-btn" id="btn-export">기록 전체 복사</button>
+        <button type="button" class="box-btn" id="btn-import">아래 칸의 기록 불러오기</button>
+      </div>
+      <textarea id="backup-box" rows="3" aria-label="백업 내용" placeholder="다른 기기에서 복사한 백업을 여기에 붙여 넣으세요"></textarea>
+      <p class="hint" id="backup-msg" role="status"></p>
+    </details>
+  </section>
+</main>
+
+<script id="scoring">
+(function (root) {
+  "use strict";
+  var TYPES = ["focus", "normal", "light", "admin", "rest"];
+  /* Counted work hours that earn the full 20, by kind of day. A rest day is not scored. */
+  var TARGET = { focus: 4, normal: 3, light: 2, admin: 3 };
+  /* One-answer questions: points by position of the button pressed. */
+  var CHOICE = ["start", "task", "output", "distract"];
+  var POINTS = { start: [0, 5, 10], task: [0, 10, 20], output: [0, 5, 10], distract: [0, 5, 10] };
+  /* Hours are logged by kind and the work hours are scored against the day's target.
+     Admin and email hours count only on an admin day. English practice counts like any other kind. */
+  var TIME = ["read", "write", "data", "idea", "field", "study", "admin", "speak", "pron", "listen"];
+  var ENGLISH_TIME = ["speak", "pron", "listen"];
+  var TIME_PTS = 20;
+  /* Life block: 5 points for each of exercise, chores, something learned, and rest
+     (rest: 0 / 2.5 / 5), 20 in all. */
+  var EXERCISE = ["weight", "basketball", "stretch"];
+
+  var CHORES = ["clean", "laundry", "shop", "cook", "other"];
+  var REST_PTS = [0, 2.5, 5];
+  var LIFE_EACH = 5, LIFE_MAX = 20, PLAN_PTS = 10;
+  var KEYS = ["start", "time", "task", "output", "distract", "life", "plan"];
+
+  function valid(key, v) {
+    return typeof v === "number" && v % 1 === 0 && v >= 0 && v < POINTS[key].length;
+  }
+  function dayType(v) { return TYPES.indexOf(v) >= 0 ? v : "focus"; }
+  function pick(list, v) {
+    return Array.isArray(v) ? list.filter(function (x) { return v.indexOf(x) >= 0; }) : [];
+  }
+  function text(v) { return typeof v === "string" ? v : ""; }
+  function restLevel(v) { return v === 0 || v === 1 || v === 2 ? v : null; }
+  function hoursMap(v) {
+    var out = {};
+    v = v && typeof v === "object" ? v : {};
+    TIME.forEach(function (k) {
+      var h = Number(v[k]);
+      out[k] = isFinite(h) ? Math.min(12, Math.max(0, Math.round(h * 2) / 2)) : 0;
+    });
+    return out;
+  }
+  function loggedHours(t) {
+    return TIME.reduce(function (a, k) { return a + (t && t[k] ? t[k] : 0); }, 0);
+  }
+  function countedHours(t, type) {
+    return TIME.reduce(function (a, k) {
+      if (k === "admin" && type !== "admin") return a;
+      return a + (t && t[k] ? t[k] : 0);
+    }, 0);
+  }
+  function englishHours(t) {
+    return ENGLISH_TIME.reduce(function (a, k) { return a + (t && t[k] ? t[k] : 0); }, 0);
+  }
+  /* Days logged before hours were split by kind carry one whole-hour answer (0-4). */
+  function oldHours(v) { return typeof v === "number" && v % 1 === 0 && v >= 0 && v <= 4 ? v : null; }
+
+  function scoreDay(d) {
+    var type = dayType(d.type), parts = {}, total = 0, answered = 0;
+    CHOICE.forEach(function (k) {
+      if (!valid(k, d[k])) { parts[k] = null; return; }
+      parts[k] = POINTS[k][d[k]];
+      total += parts[k];
+      answered++;
+    });
+    var target = TARGET[type] || TARGET.focus;
+    var logged = loggedHours(d.time), counted = countedHours(d.time, type), old = oldHours(d.hoursOld);
+    if (!logged && old != null) { logged = old; counted = old; }
+    parts.time = logged > 0 || old === 0 ? Math.min(counted, target) / target * TIME_PTS : null;
+
+    var ex = pick(EXERCISE, d.exercise).length, ch = pick(CHORES, d.chores).length;
+    var learned = text(d.learned).trim(), rest = restLevel(d.rest), plan = text(d.plan).trim();
+    var lifeAny = ex > 0 || ch > 0 || learned.length > 0 || rest != null;
+    var life = (ex ? LIFE_EACH : 0) + (ch ? LIFE_EACH : 0) +
+      (learned.length >= 2 ? LIFE_EACH : 0) + (rest != null ? REST_PTS[rest] : 0);
+    parts.life = lifeAny ? Math.min(LIFE_MAX, life) : null;
+    parts.plan = plan.length >= 2 ? PLAN_PTS : null;
+    total += (parts.time || 0) + (parts.life || 0) + (parts.plan || 0);
+
+    var any = answered > 0 || parts.time != null || lifeAny || plan.length > 0 || type === "rest";
+    return {
+      any: any, rest: any && type === "rest",
+      score: any && type !== "rest" ? Math.round(total) : null,
+      parts: parts, left: CHOICE.length - answered,
+      logged: logged, counted: counted, target: target, type: type
+    };
+  }
+  function remark(score) {
+    if (score == null) return "";
+    if (score >= 90) return "참 잘했어요";
+    if (score >= 70) return "잘했어요";
+    if (score >= 50) return "보통";
+    return "내일 다시";
+  }
+  root.Scoring = {
+    KEYS: KEYS, TYPES: TYPES, TARGET: TARGET, CHOICE: CHOICE, POINTS: POINTS, TIME: TIME,
+    EXERCISE: EXERCISE, CHORES: CHORES, englishHours: englishHours,
+    valid: valid, dayType: dayType, pick: pick, text: text, restLevel: restLevel,
+    hoursMap: hoursMap, loggedHours: loggedHours, oldHours: oldHours, scoreDay: scoreDay, remark: remark
+  };
+})(typeof window !== "undefined" ? window : globalThis);
+</script>
+
+<script>
+(function () {
+  "use strict";
+  var S = window.Scoring;
+  var LS_KEY = "daily-score-sheet-v3";
+  var PLOT_H = 100;
+  var TYPE_NAMES = { focus: "집중일", normal: "보통날", light: "가벼운 날", admin: "행정일", rest: "쉬는 날" };
+  var TIME_NAMES = {
+    read: "리딩", write: "라이팅", data: "데이터 정리", idea: "브레인스토밍",
+    field: "인터뷰·현장조사", study: "수업·공부", admin: "행정·이메일",
+    speak: "영어 말하기", pron: "영어 발음", listen: "영어 듣기"
+  };
+  var LISTS = { exercise: S.EXERCISE, chores: S.CHORES };
+
+  function $(id) { return document.getElementById(id); }
+  function el(tag, cls, text) {
+    var n = document.createElement(tag);
+    if (cls) n.className = cls;
+    if (text != null) n.textContent = text;
+    return n;
+  }
+  function fmtNum(v) { v = Math.round(v * 10) / 10; return v % 1 === 0 ? String(v) : v.toFixed(1); }
+
+  /* dates: always the device's local calendar day */
+  function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function fmtDate(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
+  function parseDate(s) { var p = s.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
+  function addDays(s, n) { var d = parseDate(s); d.setDate(d.getDate() + n); return fmtDate(d); }
+  function todayStr() { return fmtDate(new Date()); }
+  var fmtShort = new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric", weekday: "short" });
+  var fmtFull = new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric", weekday: "long" });
+  var fmtDow = new Intl.DateTimeFormat("ko-KR", { weekday: "short" });
+
+  var state = { date: todayStr(), draft: null, ready: false, days: new Map() };
+  var store = { mode: "pending", write: null, remove: null };
+  var outbox = new Map();   /* date -> doc to write, or null to delete */
+  var inflight = null;
+  var pumping = false;
+  var dirty = false;        /* a text box has changes not yet saved */
+  var saveTimer = null;
+
+  /* ---------- day records ---------- */
+  function lastType(date) {
+    var latest = null;
+    state.days.forEach(function (v, k) {
+      if (k < date && v && v.type && v.type !== "rest" && S.TYPES.indexOf(v.type) >= 0 && (!latest || k > latest)) latest = k;
+    });
+    return latest ? state.days.get(latest).type : "focus";
+  }
+  function cleanDay(v, date) {
+    var d = { date: date };
+    if (!v) { v = {}; d.type = lastType(date); }
+    else d.type = S.dayType(v.type);
+    S.CHOICE.forEach(function (k) { d[k] = S.valid(k, v[k]) ? v[k] : null; });
+    d.time = S.hoursMap(v.time || v.research);
+    d.hoursOld = S.loggedHours(d.time) > 0 ? null : S.oldHours(v.hours);
+    d.exercise = S.pick(S.EXERCISE, v.exercise);
+    if (Array.isArray(v.exercise) && v.exercise.indexOf("strength") >= 0) d.exercise = S.pick(S.EXERCISE, d.exercise.concat("weight"));
+    d.chores = S.pick(S.CHORES, v.chores);
+    d.rest = S.restLevel(v.rest);
+    d.learned = S.text(v.learned).slice(0, 400);
+    d.plan = S.text(v.plan).slice(0, 300);
+    return d;
+  }
+  function draftFor(date) { return cleanDay(state.days.get(date), date); }
+  function buildDoc(d) {
+    var doc = { date: d.date, type: d.type }, r = S.scoreDay(d);
+    S.CHOICE.forEach(function (k) { if (d[k] != null) doc[k] = d[k]; });
+    if (S.loggedHours(d.time) > 0) doc.time = S.hoursMap(d.time);
+    else if (d.hoursOld != null) doc.hours = d.hoursOld;
+    ["exercise", "chores"].forEach(function (k) { if (d[k].length) doc[k] = d[k].slice(); });
+    if (d.rest != null) doc.rest = d.rest;
+    if (d.learned.trim()) doc.learned = d.learned;
+    if (d.plan.trim()) doc.plan = d.plan;
+    if (r.score != null) doc.score = r.score;
+    doc.updatedAt = new Date().toISOString();
+    return doc;
+  }
+
+  /* ---------- render ---------- */
+  function renderScore() {
+    var r = S.scoreDay(state.draft);
+    var score = $("score");
+    score.textContent = r.rest ? "쉼" : r.score == null ? "–" : r.score;
+    score.className = "score" + (r.rest || r.score != null ? "" : " is-empty");
+    var rm = $("remark"), done = r.score != null && r.left === 0;
+    rm.textContent = done ? S.remark(r.score) : r.score != null ? r.left + "문항 남음" : "";
+    rm.className = "remark" + (done ? "" : " is-count");
+    S.KEYS.forEach(function (k) {
+      $("earned-" + k).textContent = r.rest || r.parts[k] == null ? "" : "+" + fmtNum(r.parts[k]);
+    });
+    var t = r.type;
+    $("type-hint").textContent = t === "rest"
+      ? "채점하지 않고 평균에서도 뺍니다. 기록은 남길 수 있습니다."
+      : t === "admin"
+        ? "행정·이메일 시간도 점수에 들어갑니다. 합쳐서 " + r.target + "시간이면 시간 점수 만점입니다."
+        : "행정·이메일을 뺀 시간이 " + r.target + "시간이면 시간 점수 만점입니다.";
+    var d = state.draft;
+    $("hours-hint").textContent = S.loggedHours(d.time) > 0
+      ? "적은 시간 " + fmtNum(r.logged) + "시간 · 점수에 들어가는 시간 " + fmtNum(r.counted) + "시간"
+      : d.hoursOld != null
+        ? "종류를 나누기 전 기록: " + (d.hoursOld >= 4 ? "4시간 이상" : d.hoursOld + "시간") + ". 종류별로 다시 누르면 바뀝니다."
+        : "30분씩 누릅니다.";
+  }
+  function render() {
+    var d = state.draft, today = todayStr();
+    $("date-text").textContent = fmtShort.format(parseDate(d.date)) + (d.date === today ? " · 오늘" : "");
+    $("btn-today").hidden = d.date === today;
+    $("btn-next").disabled = d.date >= today;
+    var buttons = document.querySelectorAll("#all .choice"), i, b, g, key, mode, on;
+    for (i = 0; i < buttons.length; i++) {
+      b = buttons[i]; g = b.parentNode; key = g.dataset.key; mode = g.dataset.mode;
+      if (mode === "many") on = d[key].indexOf(b.dataset.v) >= 0;
+      else if (mode === "type") on = d.type === b.dataset.v;
+      else on = d[key] === Number(b.dataset.v);
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+    }
+    S.TIME.forEach(function (k) {
+      var h = d.time[k];
+      $("hv-" + k).textContent = fmtNum(h);
+      $("hv-" + k).parentNode.className = "hour" + (h > 0 ? " is-on" : "");
+      $("hm-" + k).disabled = h <= 0;
+    });
+    var lt = $("learned-text"), pt = $("plan-text");
+    if (lt.value !== d.learned) lt.value = d.learned;
+    if (pt.value !== d.plan) pt.value = d.plan;
+    /* what was written the day before shows on top of this day's sheet */
+    var prev = state.days.get(addDays(d.date, -1));
+    var note = prev ? S.text(prev.plan).trim() : "";
+    $("plan-note").hidden = !note;
+    $("plan-note-label").textContent = d.date === today ? "어제 적어 둔 오늘의 우선순위" : "전날 적어 둔 우선순위";
+    $("plan-note-text").textContent = note;
+    renderScore();
+    renderWeek();
+  }
+  function renderWeek() {
+    var today = todayStr(), cols = $("cols"), xaxis = $("xaxis"), sum = 0, n = 0, i;
+    var timeSum = {}, lifeDays = { exercise: 0, chores: 0, learned: 0 };
+    S.TIME.forEach(function (k) { timeSum[k] = 0; });
+    cols.textContent = "";
+    xaxis.textContent = "";
+    $("tip").hidden = true;
+    for (i = 6; i >= 0; i--) {
+      var date = addDays(today, -i), dt = parseDate(date);
+      var day = draftFor(date), r = S.scoreDay(day);
+      var has = r.score != null, sel = date === state.date;
+      if (r.any) {
+        S.TIME.forEach(function (k) { timeSum[k] += day.time[k]; });
+        if (day.exercise.length) lifeDays.exercise++;
+        if (day.chores.length) lifeDays.chores++;
+        if (day.learned.trim().length >= 2) lifeDays.learned++;
+      }
+      var vtxt = has ? r.score + "점" : r.rest ? "쉬는 날" : "기록 없음";
+      var btn = el("button", "col" + (r.rest ? " is-rest" : ""));
+      btn.type = "button";
+      btn.dataset.date = date;
+      btn.dataset.v = vtxt;
+      btn.dataset.label = fmtShort.format(dt);
+      btn.setAttribute("aria-label", fmtFull.format(dt) + ", " + vtxt);
+      if (sel) btn.setAttribute("aria-current", "date");
+      if (has) {
+        sum += r.score; n++;
+        var h = Math.max(2, Math.round(r.score / 100 * PLOT_H));
+        var bar = el("span", "bar");
+        bar.style.height = h + "px";
+        btn.appendChild(bar);
+        if (sel) {
+          var cap = el("span", "cap", String(r.score));
+          cap.style.bottom = (h + 4) + "px";
+          btn.appendChild(cap);
+        }
+      }
+      cols.appendChild(btn);
+      xaxis.appendChild(el("span", sel ? "is-sel" : "", i === 0 ? "오늘" : fmtDow.format(dt)));
+    }
+    var avg = $("avg");
+    avg.textContent = "";
+    if (n) {
+      avg.appendChild(document.createTextNode("평균 "));
+      avg.appendChild(el("b", "", String(Math.round(sum / n))));
+      avg.appendChild(document.createTextNode("점"));
+    }
+
+    /* where the week's hours went, by kind of work */
+    var mix = $("mix"), top = 0, all = 0;
+    mix.textContent = "";
+    S.TIME.forEach(function (k) { top = Math.max(top, timeSum[k]); all += timeSum[k]; });
+    S.TIME.forEach(function (k) {
+      var row = el("div", "mix-row");
+      row.appendChild(el("span", "mix-name", TIME_NAMES[k]));
+      var meter = el("div", "meter"), fill = el("i");
+      fill.style.width = top > 0 ? (timeSum[k] / top * 100).toFixed(1) + "%" : "0%";
+      meter.appendChild(fill);
+      row.appendChild(meter);
+      row.appendChild(el("span", "mix-val", fmtNum(timeSum[k]) + "시간"));
+      mix.appendChild(row);
+    });
+    var mt = $("mix-total");
+    mt.textContent = "";
+    mt.appendChild(document.createTextNode("합계 "));
+    mt.appendChild(el("b", "", fmtNum(all)));
+    mt.appendChild(document.createTextNode("시간"));
+    $("lifeline").textContent = "7일 생활: 운동 " + lifeDays.exercise + "일 · 집안일 " + lifeDays.chores + "일 · 새롭게 배운 것 " + lifeDays.learned + "일";
+    renderNotes();
+  }
+  /* every day that has something written down, newest first */
+  function renderNotes() {
+    var list = $("notes-list"), dates = [];
+    list.textContent = "";
+    state.days.forEach(function (v, k) {
+      if (v && (S.text(v.learned).trim() || S.text(v.plan).trim())) dates.push(k);
+    });
+    dates.sort().reverse();
+    if (!dates.length) { list.appendChild(el("p", "hint", "아직 적어 둔 글이 없습니다.")); return; }
+    dates.forEach(function (date) {
+      var v = state.days.get(date), box = el("div", "note-day");
+      var go = el("button", "note-date", fmtShort.format(parseDate(date)));
+      go.type = "button";
+      go.dataset.date = date;
+      box.appendChild(go);
+      [["새롭게 배운 것", S.text(v.learned).trim()], ["다음 날의 우선순위", S.text(v.plan).trim()]].forEach(function (pair) {
+        if (!pair[1]) return;
+        box.appendChild(el("span", "note-kind", pair[0]));
+        box.appendChild(el("p", "note-line", pair[1]));
+      });
+      list.appendChild(box);
+    });
+  }
+  function showTip(col) {
+    var tip = $("tip");
+    tip.textContent = "";
+    tip.appendChild(el("b", "", col.dataset.v));
+    tip.appendChild(document.createTextNode(col.dataset.label));
+    tip.hidden = false;
+    var zone = tip.parentNode.clientWidth, half = tip.offsetWidth / 2;
+    var x = col.offsetLeft + col.offsetWidth / 2;
+    tip.style.left = Math.min(Math.max(x, half), Math.max(half, zone - half)) + "px";
+  }
+  function hideTip() { $("tip").hidden = true; }
+
+  /* ---------- saving ---------- */
+  var SYNC_TEXT = {
+    loading: "불러오는 중입니다.",
+    slow: "저장소에 아직 닿지 않았습니다. 연결되면 자동으로 불러옵니다.",
+    cloud: "",
+    saved: "저장했습니다.",
+    local: "이 기기에만 저장됩니다.",
+    localfail: "이 브라우저가 저장을 막고 있습니다. 닫으면 기록이 사라집니다.",
+    error: "저장하지 못했습니다. 연결을 확인해 주세요.",
+    full: "저장 공간이 가득 찼습니다."
+  };
+  function setSync(kind) {
+    var n = $("sync");
+    n.textContent = SYNC_TEXT[kind] || "";
+    n.className = /^(slow|localfail|error|full)$/.test(kind) ? "is-warn" : "";
+    $("btn-retry").hidden = !(kind === "error" || kind === "full");
+  }
+  function commit() {
+    var d = state.draft;
+    if (S.scoreDay(d).any) {
+      var doc = buildDoc(d);
+      state.days.set(d.date, doc);
+      outbox.set(d.date, doc);
+    } else if (state.days.has(d.date)) {
+      state.days.delete(d.date);
+      outbox.set(d.date, null);
+    } else return;
+    pump();
+  }
+  function save() {
+    clearTimeout(saveTimer);
+    saveTimer = null;
+    dirty = false;
+    commit();
+  }
+  function flush() { if (dirty) save(); }
+  function wait(ms) { return new Promise(function (res) { setTimeout(res, ms); }); }
+  async function writeOne(date, doc) {
+    var run = function () { return doc === null ? store.remove(date) : store.write(date, doc); };
+    try { await run(); }
+    catch (e) {
+      if (e && e.code === "unavailable") { await wait(500 + Math.random() * 700); await run(); }
+      else throw e;
+    }
+  }
+  async function pump() {
+    if (pumping || !store.write) return;
+    pumping = true;
+    var failed = null;
+    while (outbox.size) {
+      var date = outbox.keys().next().value;
+      var doc = outbox.get(date);
+      outbox.delete(date);
+      inflight = { date: date, doc: doc };
+      try { await writeOne(date, doc); }
+      catch (e) {
+        if (!outbox.has(date)) outbox.set(date, doc);
+        failed = e || {};
+        inflight = null;
+        break;
+      }
+      inflight = null;
+    }
+    pumping = false;
+    if (failed) setSync(failed.code === "quota_exceeded" ? "full" : store.mode === "local" ? "localfail" : "error");
+    else setSync(store.mode === "local" ? "local" : "saved");
+  }
+
+  /* ---------- storage: the account store when the page has it, this browser otherwise ---------- */
+  function begin() {
+    state.ready = true;
+    state.draft = draftFor(state.date);
+    $("all").disabled = false;
+    render();
+    setSync(store.mode === "local" ? "local" : "cloud");
+  }
+  function useLocal() {
+    var raw = null;
+    try { raw = JSON.parse(localStorage.getItem(LS_KEY) || "null"); } catch (e) { raw = null; }
+    if (raw && raw.days && typeof raw.days === "object") {
+      Object.keys(raw.days).forEach(function (k) {
+        if (/^\d{4}-\d{2}-\d{2}$/.test(k) && raw.days[k]) state.days.set(k, raw.days[k]);
+      });
+    }
+    var writeAll = function () {
+      return new Promise(function (res, rej) {
+        try {
+          var days = {};
+          state.days.forEach(function (v, k) { days[k] = v; });
+          localStorage.setItem(LS_KEY, JSON.stringify({ days: days }));
+          res();
+        } catch (e) { rej({ code: "local_failed" }); }
+      });
+    };
+    store.mode = "local";
+    store.write = writeAll;
+    store.remove = writeAll;
+    begin();
+  }
+  function useCloud(db, uid) {
+    var daysCol;
+    try { daysCol = db.doc("data/users/" + uid + "/log").collection("days"); }
+    catch (e) { useLocal(); return; }
+    store.mode = "cloud";
+    store.write = function (date, doc) { return daysCol.doc(date).set(doc); };
+    store.remove = function (date) { return daysCol.doc(date).delete(); };
+
+    var slow = setTimeout(function () { if (!state.ready) setSync("slow"); }, 10000);
+    daysCol.orderBy("date", "desc").limit(400).onSnapshot(function (snap) {
+      if (!snap.metadata.fromCache) clearTimeout(slow);
+      var m = new Map();
+      snap.docs.forEach(function (s) { var v = s.data(); if (v) m.set(s.id, v); });
+      if (inflight) { if (inflight.doc === null) m.delete(inflight.date); else m.set(inflight.date, inflight.doc); }
+      outbox.forEach(function (doc, date) { if (doc === null) m.delete(date); else m.set(date, doc); });
+      state.days = m;
+      if (!state.ready) { clearTimeout(slow); begin(); }
+      else if (dirty) renderWeek();
+      else {
+        var keep = state.draft.type;
+        state.draft = draftFor(state.date);
+        if (!state.days.has(state.date)) state.draft.type = keep;
+        render();
+      }
+    }, function () {
+      clearTimeout(slow);
+      if (!state.ready) useLocal(); else setSync("error");
+    });
+  }
+  async function connect() {
+    var db = null, uid = null;
+    try {
+      if (window.claude && typeof window.claude.use === "function") {
+        var got = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+        db = got[0];
+        if (got[1]) uid = await got[1].id();
+      }
+    } catch (e) { db = null; }
+    if (db && uid) useCloud(db, uid); else useLocal();
+  }
+
+  /* ---------- events ---------- */
+  function goTo(date) {
+    var today = todayStr();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date) || date > today) date = today;
+    flush();
+    state.date = date;
+    state.draft = draftFor(date);
+    render();
+  }
+  $("all").addEventListener("click", function (e) {
+    if (!state.ready || !e.target.closest) return;
+    var d = state.draft;
+    var step = e.target.closest(".step");
+    if (step) {
+      var kind = step.parentNode.dataset.kind;
+      d.time[kind] = Math.min(12, Math.max(0, d.time[kind] + Number(step.dataset.step)));
+      d.hoursOld = null;
+      save();
+      render();
+      return;
+    }
+    var btn = e.target.closest(".choice");
+    if (!btn) return;
+    var g = btn.parentNode, key = g.dataset.key, mode = g.dataset.mode, v = btn.dataset.v;
+    if (mode === "many") {
+      var at = d[key].indexOf(v);
+      if (at >= 0) d[key].splice(at, 1); else d[key].push(v);
+      d[key] = S.pick(LISTS[key], d[key]);
+    } else if (mode === "type") {
+      d.type = v;
+    } else {
+      d[key] = d[key] === Number(v) ? null : Number(v);   /* pressing the chosen answer again clears it */
+    }
+    save();
+    render();
+  });
+  function onText(field) {
+    return function (e) {
+      if (!state.ready) return;
+      state.draft[field] = e.target.value;
+      dirty = true;
+      clearTimeout(saveTimer);
+      saveTimer = setTimeout(function () { flush(); renderWeek(); }, 700);
+      renderScore();
+    };
+  }
+  $("learned-text").addEventListener("input", onText("learned"));
+  $("plan-text").addEventListener("input", onText("plan"));
+  document.addEventListener("visibilitychange", function () { if (document.hidden) flush(); });
+  window.addEventListener("pagehide", flush);
+  $("btn-today").addEventListener("click", function () { goTo(todayStr()); });
+  $("btn-prev").addEventListener("click", function () { if (state.ready) goTo(addDays(state.date, -1)); });
+  $("btn-next").addEventListener("click", function () { if (state.ready) goTo(addDays(state.date, 1)); });
+  $("notes-list").addEventListener("click", function (e) {
+    var b = e.target.closest && e.target.closest(".note-date");
+    if (!b || !state.ready) return;
+    goTo(b.dataset.date);
+    var calm = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    $("top").scrollIntoView({ behavior: calm ? "auto" : "smooth", block: "start" });
+  });
+  $("btn-retry").addEventListener("click", function () { pump(); });
+
+  var colsEl = $("cols");
+  colsEl.addEventListener("pointerover", function (e) {
+    var c = e.target.closest && e.target.closest(".col");
+    if (c) showTip(c);
+  });
+  colsEl.addEventListener("pointerleave", hideTip);
+  colsEl.addEventListener("focusin", function (e) {
+    var c = e.target.closest && e.target.closest(".col");
+    if (c) showTip(c);
+  });
+  colsEl.addEventListener("focusout", hideTip);
+  colsEl.addEventListener("click", function (e) {
+    var c = e.target.closest && e.target.closest(".col");
+    if (c) goTo(c.dataset.date);
+  });
+
+  /* ---------- backup ---------- */
+  $("btn-export").addEventListener("click", function () {
+    flush();
+    var days = {}, n = 0;
+    state.days.forEach(function (v, k) { days[k] = v; n++; });
+    var out = JSON.stringify({ app: "daily-score-sheet", days: days });
+    var box = $("backup-box"), msg = $("backup-msg");
+    box.value = out;
+    var manual = function () {
+      box.focus();
+      box.select();
+      msg.textContent = "자동 복사가 막혀 있습니다. 아래 칸의 글을 전체 선택해 복사해 두세요.";
+    };
+    if (!n) { msg.textContent = "아직 복사할 기록이 없습니다."; return; }
+    try {
+      navigator.clipboard.writeText(out).then(function () {
+        msg.textContent = n + "일치 기록을 복사했습니다. 메모 앱 같은 곳에 붙여 두세요.";
+      }, manual);
+    } catch (e) { manual(); }
+  });
+  $("btn-import").addEventListener("click", function () {
+    var msg = $("backup-msg"), raw = null, n = 0;
+    try { raw = JSON.parse($("backup-box").value); } catch (e) { raw = null; }
+    if (!raw || !raw.days || typeof raw.days !== "object") {
+      msg.textContent = "붙여 넣은 글을 읽지 못했습니다. 복사해 둔 백업 전체를 그대로 붙여 주세요.";
+      return;
+    }
+    flush();
+    Object.keys(raw.days).forEach(function (k) {
+      var v = raw.days[k];
+      if (/^\d{4}-\d{2}-\d{2}$/.test(k) && v && typeof v === "object" && !Array.isArray(v)) { state.days.set(k, v); n++; }
+    });
+    state.draft = draftFor(state.date);
+    render();
+    store.write().then(function () {
+      msg.textContent = n + "일치 기록을 불러왔습니다. 같은 날짜는 불러온 내용으로 바뀌었습니다.";
+    }, function () { setSync("localfail"); });
+  });
+
+  /* open without a connection after the first visit */
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", function () { navigator.serviceWorker.register("sw.js").catch(function () {}); });
+  }
+
+  /* first paint, then connect */
+  state.draft = draftFor(state.date);
+  $("all").disabled = true;
+  render();
+  setSync("loading");
+  connect();
+})();
+</script>
+</body>
+</html>

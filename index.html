@@ -8,63 +8,59 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="채점표">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<meta name="theme-color" content="#fbfcfd" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#151d28" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#f2f2f6" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
 <link rel="icon" type="image/png" href="icon-192.png">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&amp;family=Hahmlet:wght@700&amp;family=IBM+Plex+Sans+KR:wght@400;500;600&amp;family=Nanum+Pen+Script&amp;display=swap">
 <style>
 :root {
-  /* layout: one small exam paper in a 560px column. Title on the left, red-pen score box on the right,
-     the day type, then seven questions with their point values (one-tap answers, hours by kind of work, a life block, tomorrow's priorities), then seven bars for the past week. */
-  --desk: #e7ebf1;
-  --sheet: #fbfcfd;
-  --ink: #18263b;
-  --ink-soft: #53627a;
-  --ink-faint: #8693a7;
-  --rule: #d2dae4;
-  --fill: #edf1f6;
-  --pen: #d42a3c;
-  --mark: #2c5fb8;
-  --mark-track: #d9e3f4;
-  --focus: #1f6feb;
-  --font-body: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", "Noto Sans KR", "Noto Sans CJK KR", system-ui, sans-serif;
-  --font-display: "Hahmlet", "Nanum Myeongjo", "AppleMyungjo", "Noto Serif KR", "Noto Serif CJK KR", "Batang", serif;
-  --font-pen: "Caveat", "Nanum Pen Script", "Bradley Hand", cursive;
-  --font-pen-ko: "Nanum Pen Script", "Caveat", "Bradley Hand", cursive;
+  /* layout: a phone-first tool. A sticky bar keeps the date and the score ring in view;
+     below it, one soft card per question on a quiet gray ground. Controls are filled, not outlined.
+     Black marks what is chosen; the one accent is reserved for the score and points earned. */
+  --bg: #f2f2f6;
+  --card: #ffffff;
+  --ink: #111114;
+  --ink-2: #5b5b66;
+  --ink-3: #74747e;
+  --line: #e4e4ea;
+  --fill: #eeeef2;
+  --accent: #d63a12;
+  --on: #111114;
+  --on-ink: #ffffff;
+  --bar: #8c8c96;
+  --font: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Pretendard", "Noto Sans KR", "Noto Sans CJK KR", "Malgun Gothic", system-ui, sans-serif;
+  --font-num: ui-rounded, "SF Pro Rounded", -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo", "Noto Sans KR", "Noto Sans CJK KR", system-ui, sans-serif;
   color-scheme: light;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
-    --desk: #0d131b;
-    --sheet: #151d28;
-    --ink: #e4eaf2;
-    --ink-soft: #a5b1c3;
-    --ink-faint: #76849a;
-    --rule: #2a3646;
-    --fill: #1e2936;
-    --pen: #ff7b7b;
-    --mark: #5b8fe6;
-    --mark-track: #22324d;
-    --focus: #6aa6ff;
+    --bg: #000000;
+    --card: #1c1c1e;
+    --ink: #f5f5f7;
+    --ink-2: #a8a8b2;
+    --ink-3: #8a8a94;
+    --line: #2e2e33;
+    --fill: #2a2a2e;
+    --accent: #ee6234;
+    --on: #f5f5f7;
+    --on-ink: #111114;
+    --bar: #6f6f79;
     color-scheme: dark;
   }
 }
 :root[data-theme="dark"] {
-  --desk: #0d131b;
-  --sheet: #151d28;
-  --ink: #e4eaf2;
-  --ink-soft: #a5b1c3;
-  --ink-faint: #76849a;
-  --rule: #2a3646;
-  --fill: #1e2936;
-  --pen: #ff7b7b;
-  --mark: #5b8fe6;
-    --mark-track: #22324d;
-  --focus: #6aa6ff;
+  --bg: #000000;
+  --card: #1c1c1e;
+  --ink: #f5f5f7;
+  --ink-2: #a8a8b2;
+  --ink-3: #8a8a94;
+  --line: #2e2e33;
+  --fill: #2a2a2e;
+  --accent: #ee6234;
+  --on: #f5f5f7;
+  --on-ink: #111114;
+  --bar: #6f6f79;
   color-scheme: dark;
 }
 
@@ -72,324 +68,287 @@
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0;
-  background: var(--desk);
+  background: var(--bg);
   color: var(--ink);
-  font-family: var(--font-body);
+  font-family: var(--font);
   font-size: 16px;
-  line-height: 1.5;
+  line-height: 1.45;
   word-break: keep-all;
+  -webkit-font-smoothing: antialiased;
 }
-.sheet {
-  max-width: 560px;
-  margin: 0 auto;
-  background: var(--sheet);
-  padding: 24px clamp(16px, 5vw, 36px) 28px;
-}
-@media (min-width: 620px) {
-  .sheet { margin: 28px auto; border: 1px solid var(--rule); }
-}
+.sheet { max-width: 600px; margin: 0 auto; padding: 14px 16px 44px; }
 fieldset.plain { border: 0; margin: 0; padding: 0; min-width: 0; }
 h1, h2 { text-wrap: balance; }
-button { font: inherit; color: inherit; }
-button:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-
-/* ---------- header ---------- */
-.head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 16px;
-  border-top: 3px solid var(--ink);
-  padding: 18px 0 20px;
+button { font: inherit; color: inherit; -webkit-tap-highlight-color: transparent; }
+button:focus-visible, summary:focus-visible, input:focus-visible, textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
 }
-h1 {
-  margin: 0 0 6px;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: clamp(28px, 7vw, 36px);
-  line-height: 1.15;
-  letter-spacing: -.01em;
-}
-.date { margin: 0; font-size: 15px; color: var(--ink-soft); }
-.text-btn {
-  min-height: 32px;
-  margin-top: 2px;
-  padding: 2px 0;
-  border: 0;
-  background: none;
-  font-size: 13.5px;
-  color: var(--ink-soft);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  cursor: pointer;
-}
-.scorebox {
-  position: relative;
-  flex: none;
-  width: 140px;
-  min-height: 108px;
-  border: 1px solid var(--ink);
-  padding: 22px 8px 8px;
-  text-align: center;
-}
-.scorebox-label {
-  position: absolute;
-  top: 0; left: 0;
-  padding: 1px 9px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: .12em;
-  background: var(--fill);
-  border-right: 1px solid var(--ink);
-  border-bottom: 1px solid var(--ink);
-}
-.score {
-  display: inline-block;
-  min-width: 72px;
-  padding: 0 8px 1px;
-  font-family: var(--font-pen);
-  font-weight: 700;
-  font-size: 62px;
-  line-height: .92;
-  color: var(--pen);
-  border-bottom: 4px double var(--pen);
-  transform: rotate(-4deg);
-}
-.remark.is-count {
-  font-family: var(--font-body);
-  font-size: 12.5px;
-  line-height: 26px;
-  color: var(--ink-soft);
-  transform: none;
-}
-.score.is-empty { color: var(--ink-faint); border-bottom-color: transparent; }
-.remark {
-  display: block;
-  margin-top: 8px;
-  min-height: 26px;
-  font-family: var(--font-pen-ko);
-  font-size: 25px;
-  line-height: 1.05;
-  color: var(--pen);
-  transform: rotate(-3deg);
-}
-
-/* ---------- questions ---------- */
-.q { padding: 13px 0 15px; border-top: 1px solid var(--rule); }
-.q-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin-bottom: 9px; }
-.q h2 {
-  margin: 0;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 17px;
-  line-height: 1.35;
-}
-.q-no { margin-right: 5px; }
-.q-pts {
-  margin-left: 6px;
-  font-family: var(--font-body);
-  font-size: 13.5px;
-  font-weight: 500;
-  color: var(--ink-soft);
-  white-space: nowrap;
-}
-.earned {
-  flex: none;
-  min-width: 44px;
-  text-align: right;
-  font-family: var(--font-pen);
-  font-weight: 700;
-  font-size: 28px;
-  line-height: 1;
-  color: var(--pen);
-  white-space: nowrap;
-  transform: rotate(-4deg);
-}
-.seg { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: 6px; }
-.choice {
-  min-height: 44px;
-  padding: 6px 4px;
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  background: var(--sheet);
-  font-size: 15.5px;
-  cursor: pointer;
-}
-.choice[aria-pressed="true"] {
-  background: var(--ink);
-  border-color: var(--ink);
-  color: var(--sheet);
-  font-weight: 500;
-}
-fieldset:disabled .choice { opacity: .5; cursor: default; }
 [hidden] { display: none !important; }
-.backup { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--rule); }
-.backup summary { min-height: 32px; font-size: 14.5px; font-weight: 600; cursor: pointer; }
-.backup summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.foot { margin-bottom: 12px; }
 .backup-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0; }
 .box-btn {
   min-height: 42px;
-  padding: 6px 14px;
-  border: 1px solid var(--ink);
-  border-radius: 6px;
-  background: var(--sheet);
+  padding: 6px 16px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--on);
+  color: var(--on-ink);
   font-size: 14.5px;
+  font-weight: 600;
   cursor: pointer;
 }
-.hours { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
-@media (max-width: 500px) { .hours { grid-template-columns: minmax(0, 1fr); } }
-.hour {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 40px 40px 40px;
-  align-items: center;
-  gap: 2px;
-  min-height: 48px;
-  padding: 3px 3px 3px 12px;
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-}
-.hour.is-on { border-color: var(--ink); }
-.hour-name { font-size: 15.5px; }
-.hour-val { text-align: center; font-weight: 600; color: var(--ink-faint); font-variant-numeric: tabular-nums; }
-.hour.is-on .hour-val { color: var(--ink); }
-.step {
-  width: 40px; height: 40px;
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  background: var(--sheet);
-  font-size: 20px;
-  line-height: 1;
-  cursor: pointer;
-}
-.step:disabled { opacity: .35; cursor: default; }
-.hint { margin: 8px 0 0; font-size: 13px; color: var(--ink-soft); }
-.caption { display: block; margin-bottom: 6px; font-size: 12.5px; font-weight: 600; letter-spacing: .04em; color: var(--ink-soft); }
-.caption-gap { margin-top: 12px; }
-.daytype { padding: 0 0 14px; }
-.chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.chip { min-height: 40px; padding: 6px 13px; font-size: 14.5px; }
-.life { display: grid; grid-template-columns: 76px minmax(0, 1fr); align-items: center; gap: 10px; }
-.life-name { font-size: 14.5px; font-weight: 500; }
-@media (max-width: 420px) {
-  .life { grid-template-columns: minmax(0, 1fr); gap: 6px; }
-  .life-name:not(:first-child) { margin-top: 6px; }
-}
-.col.is-rest::after {
-  content: "";
-  position: absolute;
-  left: 50%; bottom: 5px;
-  width: 7px; height: 7px;
-  margin-left: -3.5px;
-  border: 1.5px solid var(--ink-faint);
-  border-radius: 50%;
-}
-.lifeline { margin: 10px 0 0; font-size: 13px; color: var(--ink-soft); }
-.date { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.date-nav { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
-@media (max-width: 420px) { .date-nav { font-size: 14px; gap: 5px; } }
+
+/* ---------- top ---------- */
+.top { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 4px 4px 8px; }
+h1 { margin: 0; font-size: 26px; font-weight: 800; letter-spacing: -.02em; line-height: 1.2; }
 .pick {
-  min-height: 32px;
-  padding: 2px 8px;
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  background: var(--sheet);
+  min-height: 36px;
+  padding: 4px 10px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--card);
   color: var(--ink);
   font: inherit;
   font-size: 14px;
 }
-.pick:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-.hist-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
-.hist-meta { font-size: 13.5px; color: var(--ink-soft); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.topbar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin: 0 -16px 12px;
+  padding: 8px 20px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+@supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .topbar {
+    background: color-mix(in srgb, var(--bg) 82%, transparent);
+    -webkit-backdrop-filter: saturate(1.5) blur(16px);
+    backdrop-filter: saturate(1.5) blur(16px);
+  }
+}
+.bar-main { min-width: 0; }
+.date-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -.01em;
+  white-space: nowrap;
+}
 .nav {
-  width: 32px; height: 32px;
-  border: 1px solid var(--rule);
-  border-radius: 6px;
-  background: var(--sheet);
-  color: var(--ink);
-  font-size: 18px;
+  flex: none;
+  width: 34px; height: 34px;
+  border: 0;
+  border-radius: 50%;
+  background: var(--card);
+  font-size: 19px;
   line-height: 1;
   cursor: pointer;
 }
 .nav:disabled { opacity: .35; cursor: default; }
-.notes { margin-top: 18px; padding-top: 12px; border-top: 1px solid var(--rule); }
-.notes summary { min-height: 32px; font-size: 14.5px; font-weight: 600; cursor: pointer; }
-.notes summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-.note-day { padding: 10px 0 12px; border-top: 1px solid var(--rule); }
-.note-day:first-child { border-top: 0; }
-.note-date {
-  min-height: 30px;
+.status { display: flex; align-items: center; gap: 10px; min-height: 22px; margin: 3px 0 0 2px; font-size: 13.5px; }
+.remark { font-weight: 700; color: var(--accent); }
+.remark.is-count { font-weight: 500; color: var(--ink-2); }
+.text-btn {
+  min-height: 26px;
   padding: 0;
   border: 0;
   background: none;
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13.5px;
+  color: var(--ink-2);
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
 }
-.note-kind { display: block; margin-top: 6px; font-size: 12px; font-weight: 600; letter-spacing: .04em; color: var(--ink-soft); }
-.note-line { margin: 1px 0 0; font-size: 14.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
-.mix { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--rule); }
-.mix .week-head { margin-bottom: 8px; }
-.mix-row { display: grid; grid-template-columns: 112px minmax(0, 1fr) 64px; align-items: center; gap: 10px; padding: 5px 0; }
-.mix-name { font-size: 14px; }
-.meter { height: 8px; border-radius: 4px; background: var(--mark-track); overflow: hidden; }
-.meter i { display: block; height: 100%; border-radius: 4px; background: var(--mark); }
-.mix-val { text-align: right; font-size: 13px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
-.note { margin: 0 0 16px; padding: 10px 14px; background: var(--fill); border-left: 3px solid var(--ink); }
-.note-label { display: block; font-size: 12.5px; font-weight: 600; letter-spacing: .04em; color: var(--ink-soft); }
-.note p { margin: 2px 0 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+.ring { position: relative; flex: none; width: 64px; height: 64px; }
+.ring svg { display: block; width: 100%; height: 100%; transform: rotate(-90deg); }
+.ring circle { fill: none; stroke-width: 6; }
+.ring-track { stroke: var(--line); }
+.ring-fill {
+  stroke: var(--accent);
+  stroke-linecap: round;
+  stroke-dasharray: 169.65;
+  stroke-dashoffset: 169.65;
+  transition: stroke-dashoffset .35s ease;
+}
+@media (prefers-reduced-motion: reduce) { .ring-fill { transition: none; } }
+.score {
+  position: absolute;
+  inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--font-num);
+  font-size: 23px;
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+.score.is-empty { color: var(--ink-3); }
+@media (max-width: 380px) { .date-nav { font-size: 15.5px; gap: 6px; } }
+
+/* ---------- cards ---------- */
+.note, .daytype, .q, .wk, .mix, .notes, .backup {
+  margin: 0 0 10px;
+  padding: 14px 14px 16px;
+  border-radius: 16px;
+  background: var(--card);
+}
+.note { padding: 12px 14px; border-left: 4px solid var(--accent); }
+.note-label { display: block; font-size: 12.5px; font-weight: 600; color: var(--ink-3); }
+.note p { margin: 2px 0 0; font-weight: 500; white-space: pre-wrap; overflow-wrap: anywhere; }
+
+.q-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; margin-bottom: 11px; }
+.q h2, .week h2 { margin: 0; font-size: 16.5px; font-weight: 700; letter-spacing: -.01em; line-height: 1.35; }
+.q-no { margin-right: 7px; font-family: var(--font-num); font-weight: 700; color: var(--ink-3); }
+.q-pts { margin-left: 8px; font-size: 13px; font-weight: 500; letter-spacing: 0; color: var(--ink-3); white-space: nowrap; }
+.earned {
+  flex: none;
+  font-family: var(--font-num);
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--accent);
+  white-space: nowrap;
+}
+.caption { display: block; margin: 0 0 6px 2px; font-size: 12.5px; font-weight: 600; color: var(--ink-3); }
+.caption-gap { margin-top: 14px; }
+.hint { margin: 9px 2px 0; font-size: 13px; color: var(--ink-2); }
+
+/* one answer out of a few: a filled track, the chosen one in black */
+.seg {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: 3px;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--fill);
+}
+.choice {
+  min-height: 42px;
+  padding: 6px 4px;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.choice[aria-pressed="true"] { background: var(--on); color: var(--on-ink); font-weight: 700; }
+fieldset:disabled .choice, fieldset:disabled .step, fieldset:disabled textarea { opacity: .5; cursor: default; }
+
+/* any number out of a few: pills */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.chip { min-height: 38px; padding: 6px 15px; border-radius: 999px; background: var(--fill); font-size: 14.5px; color: var(--ink); }
+.chip[aria-pressed="true"] { background: var(--on); color: var(--on-ink); }
+.daytype { padding-bottom: 14px; }
+.daytype .chips {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 3px;
+  padding: 3px;
+  border-radius: 12px;
+  background: var(--fill);
+}
+.daytype .chip {
+  min-height: 38px;
+  padding: 4px 1px;
+  border-radius: 9px;
+  background: transparent;
+  font-size: 13.5px;
+  letter-spacing: -.02em;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+.daytype .chip[aria-pressed="true"] { background: var(--on); color: var(--on-ink); }
+
+/* hours by kind */
+.hours { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+@media (max-width: 520px) { .hours { grid-template-columns: minmax(0, 1fr); gap: 5px; } }
+.hour {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 36px 40px 36px;
+  align-items: center;
+  gap: 2px;
+  min-height: 46px;
+  padding: 5px 5px 5px 13px;
+  border-radius: 12px;
+  background: var(--fill);
+}
+.hour-name { font-size: 15px; color: var(--ink-2); line-height: 1.25; }
+.hour.is-on .hour-name { color: var(--ink); font-weight: 600; }
+.hour-val { text-align: center; font-family: var(--font-num); font-size: 16px; font-weight: 700; color: var(--ink-3); }
+.hour.is-on .hour-val { color: var(--ink); }
+.step {
+  width: 36px; height: 36px;
+  border: 0;
+  border-radius: 9px;
+  background: var(--card);
+  font-size: 19px;
+  line-height: 1;
+  cursor: pointer;
+}
+.step:disabled { opacity: .4; cursor: default; }
+
+/* life block */
+.life { display: grid; grid-template-columns: 74px minmax(0, 1fr); align-items: center; gap: 10px; }
+.life-name { font-size: 14.5px; font-weight: 600; color: var(--ink-2); }
+@media (max-width: 420px) {
+  .life { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .life-name:not(:first-child) { margin-top: 8px; }
+}
 textarea {
   display: block;
   width: 100%;
-  min-height: 68px;
+  min-height: 72px;
   padding: 10px 12px;
+  border: 0;
+  border-radius: 12px;
+  background: var(--fill);
+  color: var(--ink);
   font: inherit;
   line-height: 1.5;
-  color: var(--ink);
-  background: var(--sheet);
-  border: 1px solid var(--rule);
-  border-radius: 6px;
   resize: vertical;
 }
-textarea::placeholder { color: var(--ink-faint); opacity: 1; }
-textarea:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
-fieldset:disabled textarea { opacity: .5; }
+textarea::placeholder { color: var(--ink-3); opacity: 1; }
+textarea.one { min-height: 60px; }
 
-/* ---------- past week ---------- */
-.week { padding-top: 20px; border-top: 4px double var(--ink); }
+/* ---------- past days ---------- */
+.week { margin-top: 18px; }
 .week-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
-.week h2 { margin: 0; font-family: var(--font-display); font-weight: 700; font-size: 18px; }
-.avg { margin: 0; font-size: 14.5px; color: var(--ink-soft); }
-.avg b { font-size: 18px; font-weight: 600; color: var(--ink); }
-
-.chart { padding-left: 30px; }
-.tipzone { position: relative; height: 26px; }
+.avg { margin: 0; font-size: 14px; color: var(--ink-2); }
+.avg b { font-family: var(--font-num); font-size: 18px; font-weight: 800; color: var(--ink); }
+.chart { padding-left: 28px; }
+.tipzone { position: relative; height: 28px; }
 .tip {
   position: absolute;
-  bottom: 4px;
-  padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--ink);
-  color: var(--sheet);
+  bottom: 5px;
+  padding: 3px 9px;
+  border-radius: 8px;
+  background: var(--on);
+  color: var(--on-ink);
   font-size: 12.5px;
   white-space: nowrap;
   pointer-events: none;
   transform: translateX(-50%);
 }
-.tip b { margin-right: 6px; font-weight: 600; }
+.tip b { margin-right: 6px; font-weight: 700; }
 .plot { position: relative; height: 118px; }
-.grid span { position: absolute; left: 0; right: 0; height: 1px; background: var(--rule); }
-.grid span:last-child { background: var(--ink-faint); }
+.grid span { position: absolute; left: 0; right: 0; height: 1px; background: var(--line); }
 .grid span::before {
   content: attr(data-v);
   position: absolute;
-  left: -30px; top: -8px;
-  width: 24px;
+  left: -28px; top: -8px;
+  width: 22px;
   text-align: right;
   font-size: 11px;
   line-height: 16px;
-  color: var(--ink-faint);
+  color: var(--ink-3);
   font-variant-numeric: tabular-nums;
 }
 .cols { position: absolute; inset: 0; display: flex; }
@@ -399,90 +358,114 @@ fieldset:disabled textarea { opacity: .5; }
   min-width: 0;
   padding: 0;
   border: 0;
-  border-radius: 4px 4px 0 0;
+  border-radius: 6px 6px 0 0;
   background: none;
   cursor: pointer;
 }
 .col .bar {
   position: absolute;
   left: 50%; bottom: 0;
-  width: 24px;
+  width: 22px;
   border-radius: 4px 4px 0 0;
-  background: var(--mark);
+  background: var(--bar);
   transform: translateX(-50%);
 }
+.col[aria-current="date"] .bar { background: var(--accent); }
 .col:hover, .col:focus-visible { background: var(--fill); }
-.col:hover .bar, .col:focus-visible .bar { filter: brightness(1.18); }
 .col .cap {
   position: absolute;
   left: 50%;
-  font-size: 12px;
-  font-weight: 600;
+  font-family: var(--font-num);
+  font-size: 12.5px;
+  font-weight: 800;
   line-height: 1;
   color: var(--ink);
-  font-variant-numeric: tabular-nums;
   transform: translateX(-50%);
+}
+.col.is-rest::after {
+  content: "";
+  position: absolute;
+  left: 50%; bottom: 5px;
+  width: 7px; height: 7px;
+  margin-left: -3.5px;
+  border: 1.5px solid var(--ink-3);
+  border-radius: 50%;
 }
 .xaxis { display: flex; margin-top: 6px; }
 .xaxis span {
   flex: 1 1 0;
   min-width: 0;
   text-align: center;
-  font-size: 12.5px;
+  font-size: 12px;
   line-height: 18px;
-  color: var(--ink-faint);
+  color: var(--ink-3);
   white-space: nowrap;
 }
-.xaxis .is-sel {
-  color: var(--ink);
-  font-weight: 600;
+.xaxis .is-sel { color: var(--ink); font-weight: 700; }
+
+.mix .week-head { margin-bottom: 8px; }
+.mix-row { display: grid; grid-template-columns: 118px minmax(0, 1fr) 58px; align-items: center; gap: 10px; padding: 5px 0; }
+.mix-name { font-size: 14px; }
+.meter { height: 6px; border-radius: 3px; background: var(--fill); overflow: hidden; }
+.meter i { display: block; height: 100%; border-radius: 3px; background: var(--ink); }
+.mix-val { text-align: right; font-size: 13px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+.lifeline { margin: 10px 0 0; font-size: 13px; color: var(--ink-2); }
+
+.notes, .backup { padding-bottom: 14px; }
+summary { min-height: 26px; font-size: 16px; font-weight: 700; letter-spacing: -.01em; cursor: pointer; }
+.note-day { padding: 10px 0 12px; border-top: 1px solid var(--line); }
+.note-day:first-child { margin-top: 8px; }
+.note-day:last-child { padding-bottom: 0; }
+.hist-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.note-date {
+  min-height: 30px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: 14.5px;
+  font-weight: 700;
   text-decoration: underline;
-  text-decoration-color: var(--pen);
-  text-decoration-thickness: 2px;
+  text-decoration-color: var(--ink-3);
   text-underline-offset: 3px;
+  cursor: pointer;
 }
+.hist-meta { font-size: 13.5px; color: var(--ink-2); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.note-kind { display: block; margin-top: 6px; font-size: 12px; font-weight: 600; color: var(--ink-3); }
+.note-line { margin: 1px 0 0; font-size: 14.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
 .foot {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   align-items: center;
   gap: 2px 12px;
-  margin: 12px 0 0;
+  margin: 6px 4px 0;
   font-size: 12.5px;
-  color: var(--ink-soft);
+  color: var(--ink-3);
 }
-.foot .is-warn { color: var(--ink); font-weight: 500; }
-
-@media (max-width: 400px) {
-  .scorebox { width: 120px; min-height: 100px; }
-  .score { font-size: 54px; min-width: 60px; }
-  .remark { font-size: 22px; }
-  .q h2 { font-size: 17px; }
-}
+.foot .is-warn { color: var(--ink); font-weight: 600; }
 </style>
 </head>
 <body>
 <main class="sheet" id="top">
 
-  <header class="head">
-    <div>
-      <h1>하루 채점표</h1>
-      <div class="date">
-        <span class="date-nav">
-          <button type="button" class="nav" id="btn-prev" aria-label="전날로">&#8249;</button>
-          <span id="date-text"></span>
-          <button type="button" class="nav" id="btn-next" aria-label="다음 날로">&#8250;</button>
-        </span>
-        <input type="date" class="pick" id="date-pick" aria-label="날짜를 골라 이동">
-      </div>
-      <button type="button" class="text-btn" id="btn-today" hidden>오늘로 돌아가기</button>
-    </div>
-    <div class="scorebox" role="group" aria-label="이 날의 점수">
-      <span class="scorebox-label" aria-hidden="true">점수</span>
-      <span class="score is-empty" id="score">&ndash;</span>
-      <span class="remark" id="remark"></span>
-    </div>
+  <header class="top">
+    <h1>하루 채점표</h1>
+    <input type="date" class="pick" id="date-pick" aria-label="날짜를 골라 이동">
   </header>
+  <div class="topbar">
+    <div class="bar-main">
+      <div class="date-nav">
+        <button type="button" class="nav" id="btn-prev" aria-label="전날로">&#8249;</button>
+        <span id="date-text"></span>
+        <button type="button" class="nav" id="btn-next" aria-label="다음 날로">&#8250;</button>
+      </div>
+      <p class="status"><span class="remark" id="remark"></span><button type="button" class="text-btn" id="btn-today" hidden>오늘로 돌아가기</button></p>
+    </div>
+    <div class="ring" role="group" aria-label="이 날의 점수">
+      <svg viewBox="0 0 64 64" aria-hidden="true"><circle class="ring-track" cx="32" cy="32" r="27"></circle><circle class="ring-fill" id="ring-fill" cx="32" cy="32" r="27"></circle></svg>
+      <span class="score is-empty" id="score">&ndash;</span>
+    </div>
+  </div>
 
   <aside class="note" id="plan-note" hidden>
     <span class="note-label" id="plan-note-label">어제 적어 둔 오늘 할 일</span>
@@ -504,7 +487,7 @@ fieldset:disabled textarea { opacity: .5; }
 
     <section class="q">
       <div class="q-head">
-        <h2 id="q-start"><span class="q-no">1.</span>제때 시작했나요?<span class="q-pts">[10점]</span></h2>
+        <h2 id="q-start"><span class="q-no">1</span>제때 시작했나요?<span class="q-pts">10점</span></h2>
         <output class="earned" id="earned-start" aria-label="1번 획득 점수"></output>
       </div>
       <div class="seg" role="group" aria-labelledby="q-start" data-key="start" data-mode="one">
@@ -516,7 +499,7 @@ fieldset:disabled textarea { opacity: .5; }
 
     <section class="q">
       <div class="q-head">
-        <h2 id="q-time"><span class="q-no">2.</span>어디에 몇 시간 썼나요?<span class="q-pts">[20점]</span></h2>
+        <h2 id="q-time"><span class="q-no">2</span>어디에 몇 시간 썼나요?<span class="q-pts">20점</span></h2>
         <output class="earned" id="earned-time" aria-label="2번 획득 점수"></output>
       </div>
       <span class="caption" id="cap-paper">논문·데이터</span>
@@ -553,6 +536,18 @@ fieldset:disabled textarea { opacity: .5; }
           <button type="button" class="step" id="hm-field" data-step="-0.5" aria-label="인터뷰·현장조사 30분 줄이기">&minus;</button>
           <output class="hour-val" id="hv-field" aria-labelledby="hn-field">0</output>
           <button type="button" class="step" id="hp-field" data-step="0.5" aria-label="인터뷰·현장조사 30분 늘리기">+</button>
+        </div>
+        <div class="hour" data-kind="method">
+          <span class="hour-name" id="hn-method">방법론 공부</span>
+          <button type="button" class="step" id="hm-method" data-step="-0.5" aria-label="방법론 공부 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-method" aria-labelledby="hn-method">0</output>
+          <button type="button" class="step" id="hp-method" data-step="0.5" aria-label="방법론 공부 30분 늘리기">+</button>
+        </div>
+        <div class="hour" data-kind="geo">
+          <span class="hour-name" id="hn-geo">지정학 분석</span>
+          <button type="button" class="step" id="hm-geo" data-step="-0.5" aria-label="지정학 분석 30분 줄이기">&minus;</button>
+          <output class="hour-val" id="hv-geo" aria-labelledby="hn-geo">0</output>
+          <button type="button" class="step" id="hp-geo" data-step="0.5" aria-label="지정학 분석 30분 늘리기">+</button>
         </div>
         <div class="hour" data-kind="study">
           <span class="hour-name" id="hn-study">티칭·멘토링</span>
@@ -614,7 +609,7 @@ fieldset:disabled textarea { opacity: .5; }
 
     <section class="q">
       <div class="q-head">
-        <h2 id="q-task"><span class="q-no">3.</span>가장 중요한 일을 끝냈나요?<span class="q-pts">[20점]</span></h2>
+        <h2 id="q-task"><span class="q-no">3</span>가장 중요한 일을 끝냈나요?<span class="q-pts">20점</span></h2>
         <output class="earned" id="earned-task" aria-label="3번 획득 점수"></output>
       </div>
       <div class="seg" role="group" aria-labelledby="q-task" data-key="task" data-mode="one">
@@ -626,7 +621,7 @@ fieldset:disabled textarea { opacity: .5; }
 
     <section class="q">
       <div class="q-head">
-        <h2 id="q-output"><span class="q-no">4.</span>결과물이 남았나요?<span class="q-pts">[10점]</span></h2>
+        <h2 id="q-output"><span class="q-no">4</span>결과물이 남았나요?<span class="q-pts">10점</span></h2>
         <output class="earned" id="earned-output" aria-label="4번 획득 점수"></output>
       </div>
       <div class="seg" role="group" aria-labelledby="q-output" data-key="output" data-mode="one">
@@ -638,7 +633,7 @@ fieldset:disabled textarea { opacity: .5; }
 
     <section class="q">
       <div class="q-head">
-        <h2 id="q-distract"><span class="q-no">5.</span>딴짓은 얼마나 했나요?<span class="q-pts">[10점]</span></h2>
+        <h2 id="q-distract"><span class="q-no">5</span>딴짓은 얼마나 했나요?<span class="q-pts">10점</span></h2>
         <output class="earned" id="earned-distract" aria-label="5번 획득 점수"></output>
       </div>
       <div class="seg" role="group" aria-labelledby="q-distract" data-key="distract" data-mode="one">
@@ -650,7 +645,7 @@ fieldset:disabled textarea { opacity: .5; }
 
     <section class="q">
       <div class="q-head">
-        <h2 id="q-life"><span class="q-no">6.</span>생활<span class="q-pts">[하나에 5점]</span></h2>
+        <h2 id="q-life"><span class="q-no">6</span>생활<span class="q-pts">하나에 5점</span></h2>
         <output class="earned" id="earned-life" aria-label="6번 획득 점수"></output>
       </div>
       <div class="life">
@@ -681,14 +676,22 @@ fieldset:disabled textarea { opacity: .5; }
 
     <section class="q">
       <div class="q-head">
-        <h2 id="q-plan"><span class="q-no">7.</span>내일의 우선순위<span class="q-pts">[10점]</span></h2>
+        <h2 id="q-plan"><span class="q-no">7</span>내일의 우선순위<span class="q-pts">10점</span></h2>
         <output class="earned" id="earned-plan" aria-label="7번 획득 점수"></output>
       </div>
       <textarea id="plan-text" rows="2" maxlength="300" aria-labelledby="q-plan" placeholder="내일 가장 먼저 할 일부터 적으세요"></textarea>
     </section>
+
+    <section class="q">
+      <div class="q-head">
+        <h2 id="q-reflect">오늘의 반성<span class="q-pts">채점 안 함</span></h2>
+      </div>
+      <textarea id="reflect-text" class="one" rows="2" maxlength="300" aria-labelledby="q-reflect" placeholder="오늘을 한 문장으로 돌아보면"></textarea>
+    </section>
   </fieldset>
 
   <section class="week" aria-labelledby="week-t">
+    <div class="wk">
     <div class="week-head">
       <h2 id="week-t">최근 7일</h2>
       <p class="avg" id="avg"></p>
@@ -704,6 +707,7 @@ fieldset:disabled textarea { opacity: .5; }
         <div class="cols" id="cols" role="group" aria-label="날짜별 점수"></div>
       </div>
       <div class="xaxis" id="xaxis" aria-hidden="true"></div>
+    </div>
     </div>
     <div class="mix">
       <div class="week-head">
@@ -746,7 +750,7 @@ fieldset:disabled textarea { opacity: .5; }
   var POINTS = { start: [0, 5, 10], task: [0, 10, 20], output: [0, 5, 10], distract: [0, 5, 10] };
   /* Hours are logged by kind and the work hours are scored against the day's target.
      Admin and email hours count only on an admin day. English and Arabic practice count like any other kind. */
-  var TIME = ["read", "write", "data", "idea", "field", "study", "admin", "speak", "pron", "listen", "ar_speak", "ar_listen", "ar_phrase"];
+  var TIME = ["read", "write", "data", "idea", "field", "method", "geo", "study", "admin", "speak", "pron", "listen", "ar_speak", "ar_listen", "ar_phrase"];
   var ENGLISH_TIME = ["speak", "pron", "listen"];
   var TIME_PTS = 20;
   /* Life block: 5 points for each of exercise, chores, something learned, and rest
@@ -813,7 +817,8 @@ fieldset:disabled textarea { opacity: .5; }
     parts.plan = plan.length >= 2 ? PLAN_PTS : null;
     total += (parts.time || 0) + (parts.life || 0) + (parts.plan || 0);
 
-    var any = answered > 0 || parts.time != null || lifeAny || plan.length > 0 || type === "rest";
+    var any = answered > 0 || parts.time != null || lifeAny || plan.length > 0 ||
+      text(d.reflect).trim().length > 0 || type === "rest";
     return {
       any: any, rest: any && type === "rest",
       score: any && type !== "rest" ? Math.round(total) : null,
@@ -846,7 +851,7 @@ fieldset:disabled textarea { opacity: .5; }
   var TYPE_NAMES = { focus: "집중일", normal: "보통날", light: "가벼운 날", admin: "행정일", rest: "쉬는 날" };
   var TIME_NAMES = {
     read: "리딩", write: "라이팅", data: "데이터 정리", idea: "브레인스토밍",
-    field: "인터뷰·현장조사", study: "티칭·멘토링", admin: "행정·이메일",
+    field: "인터뷰·현장조사", method: "방법론 공부", geo: "지정학 분석", study: "티칭·멘토링", admin: "행정·이메일",
     speak: "영어 말하기", pron: "영어 발음", listen: "영어 듣기",
     ar_speak: "아랍어 말하기", ar_listen: "아랍어 듣기", ar_phrase: "아랍어 표현 외우기"
   };
@@ -900,6 +905,7 @@ fieldset:disabled textarea { opacity: .5; }
     d.rest = S.restLevel(v.rest);
     d.learned = S.text(v.learned).slice(0, 400);
     d.plan = S.text(v.plan).slice(0, 300);
+    d.reflect = S.text(v.reflect).slice(0, 300);
     return d;
   }
   function draftFor(date) { return cleanDay(state.days.get(date), date); }
@@ -912,6 +918,7 @@ fieldset:disabled textarea { opacity: .5; }
     if (d.rest != null) doc.rest = d.rest;
     if (d.learned.trim()) doc.learned = d.learned;
     if (d.plan.trim()) doc.plan = d.plan;
+    if (d.reflect.trim()) doc.reflect = d.reflect;
     if (r.score != null) doc.score = r.score;
     doc.updatedAt = new Date().toISOString();
     return doc;
@@ -923,6 +930,7 @@ fieldset:disabled textarea { opacity: .5; }
     var score = $("score");
     score.textContent = r.rest ? "쉼" : r.score == null ? "–" : r.score;
     score.className = "score" + (r.rest || r.score != null ? "" : " is-empty");
+    $("ring-fill").style.strokeDashoffset = String(169.65 * (1 - Math.min(100, r.score || 0) / 100));
     var rm = $("remark"), done = r.score != null && r.left === 0;
     rm.textContent = done ? S.remark(r.score) : r.score != null ? r.left + "문항 남음" : "";
     rm.className = "remark" + (done ? "" : " is-count");
@@ -963,9 +971,10 @@ fieldset:disabled textarea { opacity: .5; }
       $("hv-" + k).parentNode.className = "hour" + (h > 0 ? " is-on" : "");
       $("hm-" + k).disabled = h <= 0;
     });
-    var lt = $("learned-text"), pt = $("plan-text");
+    var lt = $("learned-text"), pt = $("plan-text"), rt = $("reflect-text");
     if (lt.value !== d.learned) lt.value = d.learned;
     if (pt.value !== d.plan) pt.value = d.plan;
+    if (rt.value !== d.reflect) rt.value = d.reflect;
     /* what was written the day before shows on top of this day's sheet */
     var prev = state.days.get(addDays(d.date, -1));
     var note = prev ? S.text(prev.plan).trim() : "";
@@ -1061,7 +1070,8 @@ fieldset:disabled textarea { opacity: .5; }
       head.appendChild(go);
       head.appendChild(el("span", "hist-meta", TYPE_NAMES[r.type] + (r.score != null ? " · " + r.score + "점" : "")));
       box.appendChild(head);
-      [["새롭게 배운 것", S.text(v.learned).trim()], ["다음 날의 우선순위", S.text(v.plan).trim()]].forEach(function (pair) {
+      [["새롭게 배운 것", S.text(v.learned).trim()], ["다음 날의 우선순위", S.text(v.plan).trim()],
+        ["반성", S.text(v.reflect).trim()]].forEach(function (pair) {
         if (!pair[1]) return;
         box.appendChild(el("span", "note-kind", pair[0]));
         box.appendChild(el("p", "note-line", pair[1]));
@@ -1269,6 +1279,7 @@ fieldset:disabled textarea { opacity: .5; }
   }
   $("learned-text").addEventListener("input", onText("learned"));
   $("plan-text").addEventListener("input", onText("plan"));
+  $("reflect-text").addEventListener("input", onText("reflect"));
   document.addEventListener("visibilitychange", function () { if (document.hidden) flush(); });
   window.addEventListener("pagehide", flush);
   $("btn-today").addEventListener("click", function () { goTo(todayStr()); });

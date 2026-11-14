@@ -1,12 +1,12 @@
 {
-  "name": "하루 채점표",
-  "short_name": "채점표",
+  "name": "Ledger",
+  "short_name": "Ledger",
   "lang": "ko",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#fbfcfd",
-  "theme_color": "#fbfcfd",
+  "background_color": "#000000",
+  "theme_color": "#000000",
   "icons": [
     {
       "src": "icon-192.png",
